@@ -28,7 +28,11 @@ import HomeHeader from "../../components/HomeHeader";
 import PostCard from "./components/PostCard";
 import { auth, firestore } from "../../config/firebase";
 
-export default function HomeView({ navigation }) {
+import UserView from "../user/User";
+
+const Stack = createStackNavigator();
+
+export function HomeView({ navigation }) {
   const [files, setFiles] = useState([]);
   const storage = getStorage();
   const [loading, setLoading] = useState(false);
@@ -91,7 +95,7 @@ export default function HomeView({ navigation }) {
 
   const styles = {
     view: {
-      backgroundColor: "#F2D7D9",
+      backgroundColor: "#f0f0f0",
       flex: 1,
       alignItems: "center",
       justifyContent: "flex-start",
@@ -110,7 +114,7 @@ export default function HomeView({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <HomeHeader />
+      <HomeHeader navigation={navigation} getPosts={getPosts} />
 
       <ScrollView
         style={styles.scrollView}
@@ -133,7 +137,15 @@ export default function HomeView({ navigation }) {
             })}
         </View>
       </ScrollView>
-      <AddPostButton style={styles.addPostButton} getPosts={getPosts} />
     </View>
+  );
+}
+
+export default function MessageStack({ navigation, route }) {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Posts" component={HomeView} navigation={navigation} />
+      <Stack.Screen name="User" component={UserView} />
+    </Stack.Navigator>
   );
 }

@@ -21,7 +21,7 @@ export default function Avatar(props) {
     avatar: {
       overflow: "hidden",
       borderRadius: Number(props.width) / 2,
-      
+
       maxWidth: props.width,
       minWidth: props.width,
       maxHeight: props.width,
@@ -29,6 +29,21 @@ export default function Avatar(props) {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
+    },
+    storyAvatar: {
+      overflow: "hidden",
+      borderRadius: Number(props.width) / 2,
+
+      maxWidth: props.width,
+      minWidth: props.width,
+      maxHeight: props.width,
+      minHeight: props.width,
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      borderWidth: 2,
+      borderColor: "#fff",
+      
     },
     image: {
       width: props.width,
@@ -38,7 +53,7 @@ export default function Avatar(props) {
   };
   return (
     <TouchableOpacity
-      style={styles.avatar}
+      style={props.story ? styles.storyAvatar : styles.avatar}
       activeOpacity={0.6}
       underlayColor="#DDDDDD"
       onPress={props.onPress}

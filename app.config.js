@@ -2,8 +2,8 @@ import "dotenv/config";
 
 export default {
   expo: {
-    name: "Oppimisprojekti",
-    slug: "Oppimisprojekti",
+    name: "Vicinity",
+    slug: "Vicinity",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",

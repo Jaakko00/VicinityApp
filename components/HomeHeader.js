@@ -4,11 +4,20 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import * as React from "react";
 import { useEffect, useState } from "react";
-import { Text, View, StyleSheet, Image, ScrollView } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-navigation";
 
 import Avatar from "./Avatar";
 import PreviewImage from "../views/home/components/PreviewImage";
+
+import AddPostButton from "../views/home/components/AddPostButton";
 
 export default function HomeHeader(props) {
   const styles = {
@@ -17,33 +26,42 @@ export default function HomeHeader(props) {
       backgroundColor: "#fff",
       width: "100%",
       height: "15%",
-      shadowColor: "#171717",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.4,
-      shadowRadius: 5,
     },
-
-    shadowProp: {
-      padding: 7,
-      shadowColor: "#171717",
-      shadowOffset: { width: -2, height: 4 },
-      shadowOpacity: 0.4,
-      shadowRadius: 3,
+    headerContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      height: "100%",
     },
     logo: {
-      width: "100%",
-      height: "98%",
+      width: 180,
+      height: "80%",
       resizeMode: "contain",
+      margin: 10,
+    },
+    accountIcon: {
+      width: 80,
+      margin: 10,
+      flexDirection: "row",
+      justifyContent: "space-between",
     },
   };
   return (
     <View style={styles.header}>
       <SafeAreaView>
-        <View>
+        <View style={styles.headerContainer}>
           <Image
             style={styles.logo}
             source={require("../assets/Vicinity-text-transparent.png")}
           />
+          <View style={styles.accountIcon}>
+            <AddPostButton getPosts={props.getPosts} />
+            <TouchableOpacity onPress={() => props.navigation.navigate("User")}>
+              <Text>
+                <MaterialCommunityIcons name="account" size={35} color="#000" />
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </SafeAreaView>
     </View>

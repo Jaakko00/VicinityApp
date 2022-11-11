@@ -158,9 +158,15 @@ export default function AddPostButton(props) {
 
   return (
     <View>
-      <View style={styles.buttonContainer}>
+      <View>
         <TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-          <MaterialCommunityIcons name="plus" size={50} color="white" />
+          <Text>
+            <MaterialCommunityIcons
+              name="plus-circle-outline"
+              size={35}
+              color="#000"
+            />
+          </Text>
         </TouchableOpacity>
       </View>
       <Modal

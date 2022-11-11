@@ -6,13 +6,12 @@ import moment from "moment";
 import * as React from "react";
 import { useEffect, useState, useContext } from "react";
 import {
-  SafeAreaView,
   Text,
-  View,
-  StyleSheet,
-  Image,
-  ScrollView,
   TouchableOpacity,
+  View,
+  Modal,
+  Pressable,
+  TouchableWithoutFeedback,
 } from "react-native";
 
 import { AuthenticatedUserContext } from "../../../App";
@@ -26,14 +25,15 @@ export default function TextBubbleReceived(props) {
       flex: 1,
       alignItems: "flex-start",
       justifyContent: "center",
-      width: "90%",
-      maxHeight: "15%",
-      minHeight: "15%",
-      marginBottom: 10,
-      marginTop: 10,
+      margin: 10,
+      marginBottom: 8,
+      marginTop: 8,
     },
     bubble: {
+      position: "relative",
       backgroundColor: "#fff",
+      borderColor: "#E40066",
+      borderWidth: 2,
       padding: 15,
 
       borderRadius: 30,
@@ -41,7 +41,7 @@ export default function TextBubbleReceived(props) {
       minWidth: "40%",
       maxWidth: "70%",
 
-      shadowColor: "#171717",
+      shadowColor: "#E40066",
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
@@ -75,23 +75,126 @@ export default function TextBubbleReceived(props) {
       fontFamily: "Futura",
       fontSize: 16,
     },
+    textDeleted: {
+      fontFamily: "Futura",
+      fontSize: 16,
+      color: "#7a7a7a",
+      fontStyle: "italic",
+    },
     textSecondary: {
       fontFamily: "Futura",
       color: "#7a7a7a",
     },
+    icon: {
+      fontSize: 20,
+      margin: 5,
+    },
+    iconSelected: {
+      backgroundColor: "#fff",
+      borderRadius: "50%",
+      borderWidth: 2,
+      borderColor: "#276fbf",
+    },
+    centeredView: {
+      position: "absolute",
+      zIndex: 99,
+      left: "40%",
+    },
+    modalView: {
+      margin: 20,
+      backgroundColor: "white",
+      borderRadius: 20,
+      padding: 10,
+      flexDirection: "row",
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 4,
+      elevation: 5,
+    },
+    reactedView: {
+      position: "absolute",
+      zIndex: 99,
+      right: -15,
+      bottom: -15,
+      backgroundColor: "#fff",
+      borderRadius: "50%",
+      borderWidth: 2,
+      borderColor: "#276fbf",
+    },
   };
 
+  const isToday = moment(props.message.sentAt).isSame(new Date(), "day");
+
+  const isDeleted = props.message.message === "Deleted";
+
   return (
-    <View style={styles.bubbleContainer}>
-      <View style={styles.bubble}>
-        <View style={styles.cardHeader}>
-          <View style={styles.bubbleText}>
-            <Text style={styles.text}>{props.message.message}</Text>
-            <Text style={styles.textSecondary}>
-              {moment(props.message.sentAt).format("hh:mm")}
-            </Text>
+    <View>
+      {props.showReactions === props.message.id && (
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <TouchableOpacity
+              style={props.message.reaction === "👍" ? styles.iconSelected : ""}
+              onPress={() => props.reactToMessage(props.message, "👍")}
+            >
+              <Text style={styles.icon}>👍</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={props.message.reaction === "😂" ? styles.iconSelected : ""}
+              onPress={() => props.reactToMessage(props.message, "😂")}
+            >
+              <Text style={styles.icon}>😂</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={props.message.reaction === "👏" ? styles.iconSelected : ""}
+              onPress={() => props.reactToMessage(props.message, "👏")}
+            >
+              <Text style={styles.icon}>👏</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={props.message.reaction === "😳" ? styles.iconSelected : ""}
+              onPress={() => props.reactToMessage(props.message, "😳")}
+            >
+              <Text style={styles.icon}>😳</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={props.message.reaction === "😢" ? styles.iconSelected : ""}
+              onPress={() => props.reactToMessage(props.message, "😢")}
+            >
+              <Text style={styles.icon}>😢</Text>
+            </TouchableOpacity>
           </View>
         </View>
+      )}
+      <View style={styles.bubbleContainer}>
+        <TouchableOpacity
+          onLongPress={() => props.setShowReactions(props.message.id)}
+          disabled={isDeleted}
+        >
+          <View style={styles.bubble}>
+            <View style={styles.cardHeader}>
+              <View style={styles.bubbleText}>
+                <Text style={!isDeleted ? styles.text : styles.textDeleted}>
+                  {props.message.message}
+                </Text>
+                <Text style={styles.textSecondary}>
+                  {isToday
+                    ? moment(props.message.sentAt).format("hh:mm")
+                    : moment(props.message.sentAt).format("D.M. hh:mm")}
+                </Text>
+              </View>
+            </View>
+            {props.message.reaction && (
+              <View style={styles.reactedView}>
+                <Text style={styles.icon}>{props.message.reaction}</Text>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );

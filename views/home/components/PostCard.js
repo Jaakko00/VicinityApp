@@ -24,14 +24,14 @@ export default function PostCard(props) {
     card: {
       backgroundColor: "#fff",
       padding: 10,
-      margin: 10,
+      marginTop: 10,
       borderRadius: 10,
-      minWidth: "90%",
-      maxWidth: "90%",
+      minWidth: "95%",
+      maxWidth: "95%",
 
       shadowColor: "#171717",
-      shadowOffset: { width: -2, height: 4 },
-      shadowOpacity: 0.2,
+      shadowOffset: { width: -2, height: 2 },
+      shadowOpacity: 0.1,
       shadowRadius: 3,
     },
     cardHeader: {
@@ -40,8 +40,21 @@ export default function PostCard(props) {
     cardHeaderText: {
       margin: 5,
       padding: 5,
-      borderLeftWidth: 1,
+      borderLeftWidth: 2,
       borderColor: "#E40066",
+      flex: 1,
+    },
+    cardHeaderTextOwn: {
+      margin: 5,
+      padding: 5,
+      borderLeftWidth: 2,
+      borderColor: "#276fbf",
+      flex: 1,
+    },
+    cardFirstRow: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
     },
 
     scrollView: {
@@ -49,6 +62,7 @@ export default function PostCard(props) {
       marginTop: 10,
       marginBottom: 10,
       borderRadius: 10,
+      padding: 5,
       overflow: "hidden",
       backgroundColor: "white",
     },
@@ -61,7 +75,16 @@ export default function PostCard(props) {
     },
     text: {
       fontFamily: "Futura",
-      
+      color: "#7a7a7a",
+    },
+    textPrimary: {
+      fontFamily: "Futura",
+      backgroundColor: "#fff",
+      fontSize: 16,
+    },
+    textHeader: {
+      fontFamily: "Futura",
+      fontSize: 16,
     },
   };
 
@@ -73,27 +96,35 @@ export default function PostCard(props) {
       <View style={styles.cardHeader}>
         <UserAvatar
           style={styles.shadowProp}
-          width={70}
+          width={55}
           image={props.post.userData.avatar}
           user={props.post.userData}
           navigation={props.navigation}
         />
 
-        <View style={styles.cardHeaderText}>
-          <Text style={styles.text}>
-            {props.post.userData.uid !== user.uid
-              ? `${props.post.userData.firstName} ${props.post.userData.lastName} posted`
-              : "You posted"}
-          </Text>
+        <View
+          style={
+            props.post.userData.uid !== user.uid
+              ? styles.cardHeaderText
+              : styles.cardHeaderTextOwn
+          }
+        >
+          <View style={styles.cardFirstRow}>
+            <Text style={styles.textHeader}>
+              {props.post.userData.uid !== user.uid
+                ? `${props.post.userData.firstName} ${props.post.userData.lastName}`
+                : "You"}
+            </Text>
+            <Text style={styles.text}>Tampere, Amuri</Text>
+          </View>
           <Text style={styles.text}>
             {moment(props.post.postedAt).fromNow()}
           </Text>
-          <Text style={styles.text}>300m away</Text>
         </View>
       </View>
       <View style={styles.scrollView}>
         <ScrollView>
-          <Text style={styles.text}>{props.post.text}</Text>
+          <Text style={styles.textPrimary}>{props.post.text}</Text>
         </ScrollView>
       </View>
       {props.post.image && (

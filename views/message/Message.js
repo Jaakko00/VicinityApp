@@ -20,11 +20,13 @@ import {
   ScrollView,
   StyleSheet,
   RefreshControl,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-navigation";
+import StoryAvatar from "../../components/StoryAvatar";
 
 import { AuthenticatedUserContext } from "../../App";
-import HomeHeader from "../../components/HomeHeader";
+import MessageHeader from "./components/MessageHeader";
 import { auth, firestore } from "../../config/firebase";
 import ChatView from "../chat/Chat";
 import AddPostButton from "../home/components/AddPostButton";
@@ -66,7 +68,7 @@ export function MessageView({ navigation, route }) {
   };
 
   const getFriends = async () => {
-    let friendRefs = [];
+    const friendRefs = [];
     const friendQuery1 = query(
       collection(firestore, "friends"),
       where("userRef", "==", doc(firestore, "user", user.uid)),
@@ -104,17 +106,35 @@ export function MessageView({ navigation, route }) {
 
   const styles = {
     view: {
-      backgroundColor: "#F2D7D9",
+      backgroundColor: "#fff",
       flex: 1,
       alignItems: "center",
+      justifyContent: "flex-center",
+    },
+    horizontalView: {
+      backgroundColor: "#fff",
+      flex: 1,
+      flexDirection: "row",
+      alignItems: "flex-start",
       justifyContent: "flex-start",
     },
     text: {
-      fontWeight: "bold",
-      fontSize: 18,
-      marginTop: 0,
+      margin: 5,
+      fontFamily: "Futura",
     },
-    scrollView: {},
+    header: {
+      padding: 5,
+      paddingLeft: 10,
+      fontFamily: "Futura",
+      fontSize: 18,
+      backgroundColor: "#fff",
+    },
+    scrollView: { flexGrow: 1, flex: 1 },
+    scrollViewHorizontal: { height: 150 },
+    userAvatar: {
+      margin: 10,
+      alignItems: "center",
+    },
   };
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -122,31 +142,58 @@ export function MessageView({ navigation, route }) {
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
-      <HomeHeader />
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <MessageHeader />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={{ flexGrow: 1 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        <View style={styles.view}>
-          {friends.map((frn) => {
-            return (
-              <FriendCard key={frn.uid} friend={frn} navigation={navigation} />
-            );
-          })}
-        </View>
-      </ScrollView>
+      <View style={styles.scrollViewHorizontal}>
+        <Text style={styles.header}>Stories</Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} horizontal>
+          <View style={styles.horizontalView}>
+            {friends.map((frn) => {
+              return (
+                <View key={frn.uid} style={styles.userAvatar}>
+                  <StoryAvatar
+                    width={70}
+                    image={frn.avatar}
+                    user={frn}
+                    navigation={navigation}
+                  />
+                  <Text style={styles.text}>{frn.firstName}</Text>
+                </View>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </View>
+      <View style={styles.scrollView}>
+        <Text style={styles.header}>Messages</Text>
+
+        <FlatList
+          data={friends}
+          renderItem={(frn) => (
+            <FriendCard
+              key={frn.item.uid}
+              friend={frn.item}
+              navigation={navigation}
+            />
+          )}
+        />
+      </View>
     </View>
   );
 }
 
 export default function MessageStack({ navigation, route }) {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        contentStyle: {
+          backgroundColor: "#FFFFFF",
+        },
+      }}
+      
+    >
       <Stack.Screen
         name="Messages"
         component={MessageView}

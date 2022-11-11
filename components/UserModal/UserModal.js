@@ -120,6 +120,7 @@ export default function UserModal(props) {
       console.log("Approving friend");
       await updateDoc(doc(firestore, "friends", friendConnection.id), {
         status: "approved",
+        approvedAt: Date.now(),
       });
       setFriendStatus("approved");
     } else if (friendStatus === "approved" || friendStatus === "outpending") {
@@ -185,7 +186,7 @@ export default function UserModal(props) {
   });
 
   const messageFriend = () => {
-    props.navigation.navigate("Message");
+    props.navigation.navigate("Chat", { friend: props.user });
     props.onClose();
   };
 
