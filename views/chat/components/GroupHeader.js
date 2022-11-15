@@ -18,9 +18,10 @@ import { SafeAreaView } from "react-navigation";
 
 import Avatar from "../../../components/Avatar";
 import UserAvatar from "../../../components/UserAvatar";
+import GroupAvatar from "../../../components/GroupAvatar";
 import PreviewImage from "../../home/components/PreviewImage";
 
-export default function ChatHeader(props) {
+export default function GroupHeader(props) {
   const styles = {
     header: {
       zIndex: 999,
@@ -31,7 +32,7 @@ export default function ChatHeader(props) {
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 5,
-      justifyContent: "flex-end",
+      justifyContent: "flex-end"
     },
 
     avatar: {
@@ -41,7 +42,7 @@ export default function ChatHeader(props) {
       shadowOpacity: 0.4,
       shadowRadius: 3,
     },
-
+    
     card: {
       margin: 10,
       justifyContent: "center",
@@ -90,15 +91,12 @@ export default function ChatHeader(props) {
             </Text>
           </TouchableOpacity>
           <View style={styles.cardHeaderText}>
-            <Text style={styles.textHeader}>
-              {props.friend.firstName} {props.friend.lastName}
-            </Text>
+            <Text style={styles.textHeader}>{props.group.name}</Text>
           </View>
-          <UserAvatar
+          <GroupAvatar
             style={styles.avatar}
             width={50}
-            image={props.friend.avatar}
-            user={props.friend}
+            image={props.group.avatar}
             navigation={props.navigation}
           />
         </View>

@@ -128,7 +128,7 @@ export default function TextBubbleReceived(props) {
     },
   };
 
-  const isToday = moment(props.message.sentAt).isSame(new Date(), "day");
+  
 
   const isDeleted = props.message.message === "Deleted";
 
@@ -182,9 +182,7 @@ export default function TextBubbleReceived(props) {
                   {props.message.message}
                 </Text>
                 <Text style={styles.textSecondary}>
-                  {isToday
-                    ? moment(props.message.sentAt).format("hh:mm")
-                    : moment(props.message.sentAt).format("D.M. hh:mm")}
+                  {moment(props.message.sentAt).format("d.M. hh:mm")}
                 </Text>
               </View>
             </View>

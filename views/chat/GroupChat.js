@@ -2,7 +2,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Audio } from "expo-av";
-import moment from "moment";
 import {
   collection,
   doc,
@@ -15,7 +14,6 @@ import {
   addDoc,
   updateDoc,
 } from "firebase/firestore";
-import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import * as React from "react";
 import { useEffect, useState, useContext } from "react";
 import {
@@ -27,78 +25,41 @@ import {
   Text,
   SectionList,
 } from "react-native";
+import getTime from "../../utils/getTime";
 
 import { AuthenticatedUserContext } from "../../App";
 import { auth, firestore } from "../../config/firebase";
-import DateSection from "./components/DateSection";
 import InfoMessage from "./components/InfoMessage";
-import ChatHeader from "./components/ChatHeader";
+import DateSection from "./components/DateSection";
+
+import GroupHeader from "./components/GroupHeader";
 import InputField from "./components/InputField";
-import TextBubbleReceived from "./components/TextBubbleReceived";
-import TextBubbleSent from "./components/TextBubbleSent";
+
+import GroupTextBubbleReceived from "./components/GroupTextBubbleReceived";
+import GroupTextBubbleSent from "./components/GroupTextBubbleSent";
+import moment from "moment";
 
 const Stack = createStackNavigator();
 
-export default function ChatView(props, { route, navigation }) {
-  const storage = getStorage();
+export default function GroupChatView(props, { route, navigation }) {
   const [messages, setMessages] = useState([]);
   const [sortedMessages, setSortedMessages] = useState([]);
   const [stateFriend, setStateFriend] = useState("");
-
   const [approvedAt, setApprovedAt] = useState("");
-  const { friend } = props.route.params;
+  const { group } = props.route.params;
   const { user, setUser } = useContext(AuthenticatedUserContext);
   const [showReactions, setShowReactions] = useState("");
   const [showDelete, setShowDelete] = useState("");
 
   const getMessages = async () => {
-    const friendQuery1 = query(
-      collection(firestore, "friends"),
-      where("userRef", "==", doc(firestore, "user", user.uid)),
-      where("friendRef", "==", doc(firestore, "user", friend.uid)),
-      where("status", "==", "approved")
+    const latestMessageQuery = query(
+      collection(firestore, `group/${group.id}`, "messages")
     );
-
-    const friendQuery2 = query(
-      collection(firestore, "friends"),
-      where("friendRef", "==", doc(firestore, "user", user.uid)),
-      where("userRef", "==", doc(firestore, "user", friend.uid)),
-      where("status", "==", "approved")
-    );
-
-    const querySnapshot1 = await getDocs(friendQuery1);
-
-    let unSub;
-    querySnapshot1.forEach(async (friend) => {
-      setStateFriend(friend.id);
-      setApprovedAt(friend.data().approvedAt);
-
-      unSub = onSnapshot(
-        collection(firestore, `friends/${friend.id}`, "messages"),
-        (querySnapshot) => {
-          let loaded = false;
-          setMessages(
-            querySnapshot.docs.map((msg) => ({ ...msg.data(), id: msg.id }))
-          );
-        }
-      );
-    });
-
-    const querySnapshot2 = await getDocs(friendQuery2);
-
-    querySnapshot2.forEach(async (friend) => {
-      setStateFriend(friend.id);
-      setApprovedAt(friend.data().approvedAt);
-
-      unSub = onSnapshot(
-        collection(firestore, `friends/${friend.id}`, "messages"),
-        (querySnapshot) => {
-          setMessages(
-            querySnapshot.docs.map((msg) => {
-              return { ...msg.data(), id: msg.id };
-            })
-          );
-        }
+    const unSub = onSnapshot(latestMessageQuery, (querySnapshot) => {
+      setMessages(
+        querySnapshot.docs.map((msg) => {
+          return { ...msg.data(), id: msg.id };
+        })
       );
     });
 
@@ -106,10 +67,10 @@ export default function ChatView(props, { route, navigation }) {
   };
 
   const sendNewMessage = async (newMessage) => {
-    if (newMessage && stateFriend) {
-      await addDoc(collection(firestore, `friends/${stateFriend}/messages`), {
+    if (newMessage) {
+      await addDoc(collection(firestore, `group/${group.id}/messages`), {
         message: newMessage,
-        seen: false,
+        seenBy: [],
         sentAt: Date.now(),
         userRef: doc(firestore, "user", user.uid),
         uid: user.uid,
@@ -128,7 +89,7 @@ export default function ChatView(props, { route, navigation }) {
     if (message) {
       console.log("Reacting");
       await updateDoc(
-        doc(firestore, `friends/${stateFriend}/messages`, message.id),
+        doc(firestore, `group/${group.id}/messages`, message.id),
         {
           reaction: emoji,
         }
@@ -142,7 +103,7 @@ export default function ChatView(props, { route, navigation }) {
     if (message) {
       console.log("Deleting");
       await updateDoc(
-        doc(firestore, `friends/${stateFriend}/messages`, message.id),
+        doc(firestore, `group/${group.id}/messages`, message.id),
         {
           message: "Deleted",
           reaction: null,
@@ -153,14 +114,15 @@ export default function ChatView(props, { route, navigation }) {
 
   const setMessagesAsSeen = async () => {
     const notSeen = messages.filter((msg) => {
-      return !msg.seen && msg.uid !== user.uid;
+      return msg.seenBy && !msg.seenBy.includes(user.uid);
     });
 
     notSeen.forEach(async (message) => {
+      console.log("Updating messages as seen");
       await updateDoc(
-        doc(firestore, `friends/${stateFriend}/messages/`, message.id),
+        doc(firestore, `group/${group.id}/messages/`, message.id),
         {
-          seen: true,
+          seenBy: message.seenBy.concat(user.uid),
         }
       );
     });
@@ -171,6 +133,7 @@ export default function ChatView(props, { route, navigation }) {
       require("../../assets/popSound.mp3")
     );
 
+    console.log("Playing Sound");
     await sound.playAsync();
   };
 
@@ -179,8 +142,15 @@ export default function ChatView(props, { route, navigation }) {
       require("../../assets/delete.mp3")
     );
 
+    console.log("Playing Sound");
     await sound.playAsync();
   };
+
+  useEffect(() => {
+    if (!messages.length) {
+      getMessages();
+    }
+  }, []);
 
   const sortMessagesToDates = () => {
     const tempSortedMessages = [];
@@ -212,16 +182,8 @@ export default function ChatView(props, { route, navigation }) {
   };
 
   useEffect(() => {
-    if (!messages.length) {
-      getMessages();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (stateFriend) {
-      setMessagesAsSeen();
-    }
     if (messages) {
+      setMessagesAsSeen();
       sortMessagesToDates();
     }
   }, [messages]);
@@ -235,7 +197,7 @@ export default function ChatView(props, { route, navigation }) {
 
   return (
     <>
-      <ChatHeader friend={friend} navigation={props.navigation} />
+      <GroupHeader group={group} navigation={props.navigation} />
       <TouchableWithoutFeedback
         onPress={onPressOutside}
         disabled={!showReactions && !showDelete}
@@ -257,8 +219,9 @@ export default function ChatView(props, { route, navigation }) {
                 );
               } else if (msg.item.uid !== user.uid) {
                 return (
-                  <TextBubbleReceived
+                  <GroupTextBubbleReceived
                     key={msg.item.id}
+                    group={group}
                     message={msg.item}
                     showReactions={showReactions}
                     setShowReactions={setShowReactions}
@@ -267,8 +230,9 @@ export default function ChatView(props, { route, navigation }) {
                 );
               } else {
                 return (
-                  <TextBubbleSent
+                  <GroupTextBubbleSent
                     key={msg.item.id}
+                    group={group}
                     message={msg.item}
                     showDelete={showDelete}
                     setShowDelete={setShowDelete}
@@ -282,33 +246,47 @@ export default function ChatView(props, { route, navigation }) {
             )}
             inverted
           />
+
           {/* <FlatList
             data={messages.sort(function (a, b) {
               const c = new Date(a.sentAt);
               const d = new Date(b.sentAt);
               return d - c;
             })}
-            ListFooterComponent={<ChatFooter approvedAt={approvedAt} />}
+            ListFooterComponent={<View style={{ margin: 5 }} />}
             ListHeaderComponent={<View style={{ margin: 5 }} />}
-            renderItem={(msg) =>
-              msg.item.uid !== user.uid ? (
-                <TextBubbleReceived
-                  key={msg.item.id}
-                  message={msg.item}
-                  showReactions={showReactions}
-                  setShowReactions={setShowReactions}
-                  reactToMessage={reactToMessage}
-                />
-              ) : (
-                <TextBubbleSent
-                  key={msg.item.id}
-                  message={msg.item}
-                  showDelete={showDelete}
-                  setShowDelete={setShowDelete}
-                  deleteMessage={deleteMessage}
-                />
-              )
-            }
+            renderItem={(msg, index) => {
+              if (!msg.item.uid) {
+                return (
+                  <InfoMessage
+                    message={msg.item}
+                    secondaryMessage={msg.item.sentAt}
+                  />
+                );
+              } else if (msg.item.uid !== user.uid) {
+                return (
+                  <GroupTextBubbleReceived
+                    key={msg.item.id}
+                    group={group}
+                    message={msg.item}
+                    showReactions={showReactions}
+                    setShowReactions={setShowReactions}
+                    reactToMessage={reactToMessage}
+                  />
+                );
+              } else {
+                return (
+                  <GroupTextBubbleSent
+                    key={msg.item.id}
+                    group={group}
+                    message={msg.item}
+                    showDelete={showDelete}
+                    setShowDelete={setShowDelete}
+                    deleteMessage={deleteMessage}
+                  />
+                );
+              }
+            }}
             inverted
           /> */}
           <InputField sendNewMessage={sendNewMessage} />

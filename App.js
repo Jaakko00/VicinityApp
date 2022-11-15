@@ -34,6 +34,7 @@ export const AuthenticatedUserContext = createContext({});
 LogBox.ignoreLogs([
   "AsyncStorage has been extracted from react-native core",
   "Require cycle: App.js",
+  "EventEmitter.removeListener",
 ]);
 
 function NavigationTabs() {

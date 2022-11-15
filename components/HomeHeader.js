@@ -26,16 +26,17 @@ export default function HomeHeader(props) {
       backgroundColor: "#fff",
       width: "100%",
       height: "15%",
+      justifyContent: "flex-end",
     },
     headerContainer: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center",
+      alignItems: "flex-end",
       height: "100%",
     },
     logo: {
-      width: 180,
-      height: "80%",
+      maxWidth: "40%",
+      height: "50%",
       resizeMode: "contain",
       margin: 10,
     },
@@ -47,23 +48,21 @@ export default function HomeHeader(props) {
     },
   };
   return (
-    <View style={styles.header}>
-      <SafeAreaView>
-        <View style={styles.headerContainer}>
-          <Image
-            style={styles.logo}
-            source={require("../assets/Vicinity-text-transparent.png")}
-          />
-          <View style={styles.accountIcon}>
-            <AddPostButton getPosts={props.getPosts} />
-            <TouchableOpacity onPress={() => props.navigation.navigate("User")}>
-              <Text>
-                <MaterialCommunityIcons name="account" size={35} color="#000" />
-              </Text>
-            </TouchableOpacity>
-          </View>
+    <SafeAreaView style={styles.header}>
+      <View style={styles.headerContainer}>
+        <Image
+          style={styles.logo}
+          source={require("../assets/Vicinity-text-transparent.png")}
+        />
+        <View style={styles.accountIcon}>
+          <AddPostButton getPosts={props.getPosts} />
+          <TouchableOpacity onPress={() => props.navigation.navigate("User")}>
+            <Text>
+              <MaterialCommunityIcons name="account" size={35} color="#000" />
+            </Text>
+          </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }

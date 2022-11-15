@@ -20,7 +20,9 @@ import Avatar from "../../../components/Avatar";
 import UserAvatar from "../../../components/UserAvatar";
 import PreviewImage from "../../home/components/PreviewImage";
 
-export default function TextBubbleSent(props) {
+export default function GroupTextBubbleSent(props) {
+  const [color, setColor] = useState("");
+
   const styles = {
     bubbleContainer: {
       flex: 1,
@@ -32,7 +34,7 @@ export default function TextBubbleSent(props) {
     },
     bubble: {
       backgroundColor: "#fff",
-      borderColor: "#276fbf",
+      borderColor: color,
       borderWidth: 2,
       padding: 15,
 
@@ -41,7 +43,7 @@ export default function TextBubbleSent(props) {
       minWidth: "40%",
       maxWidth: "70%",
 
-      shadowColor: "#276fbf",
+      shadowColor: color,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
@@ -125,6 +127,20 @@ export default function TextBubbleSent(props) {
 
   const isDeleted = props.message.message === "Deleted";
 
+  useEffect(() => {
+    if (!color) {
+      getColor();
+    }
+  }, []);
+
+  const getColor = () => {
+    props.group.participants.forEach((participant) => {
+      if (participant.uid === props.message.uid) {
+        setColor(participant.color);
+      }
+    });
+  };
+
   return (
     <View>
       <View style={styles.bubbleContainer}>
@@ -139,22 +155,7 @@ export default function TextBubbleSent(props) {
                   {props.message.message}
                 </Text>
                 <Text style={styles.textSecondary}>
-                  {moment(props.message.sentAt).format("d.M. hh:mm")}
-                  {props.message.seen ? (
-                    <MaterialCommunityIcons
-                      name="eye-check"
-                      size={16}
-                      color="#276fbf"
-                      style={styles.sendIcon}
-                    />
-                  ) : (
-                    <MaterialCommunityIcons
-                      name="send-outline"
-                      size={16}
-                      color="#276fbf"
-                      style={styles.sendIcon}
-                    />
-                  )}
+                  {moment(props.message.sentAt).format("hh:mm")}
                 </Text>
               </View>
             </View>
@@ -175,11 +176,11 @@ export default function TextBubbleSent(props) {
                 </View>
               </View>
             )}
-            {props.message.reaction && (
+            {/* {props.message.reaction && (
               <View style={styles.reactedView}>
                 <Text style={styles.icon}>{props.message.reaction}</Text>
               </View>
-            )}
+            )} */}
           </View>
         </TouchableOpacity>
       </View>
