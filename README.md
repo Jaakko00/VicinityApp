@@ -1,6 +1,9 @@
-<h1 align="center">Vicinity App</h1>
+<p align="center">
+ <img align="center" width="400" src="https://user-images.githubusercontent.com/69541309/203003458-9de0a190-73c6-4181-91c7-76f932dbbbad.png" />
+</p>
 <h4 align="center">An application for meeting and befriending your neighbours</h1>
 <br>
+
 
 ## Screenshots
 Coming soon
