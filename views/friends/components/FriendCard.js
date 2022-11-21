@@ -107,11 +107,11 @@ export default function FriendCard(props) {
                   {`${props.friend.firstName} ${props.friend.lastName}`}
                 </Text>
 
-                <Text style={styles.text}>Text</Text>
+                <Text style={styles.text}>Friend</Text>
               </View>
 
               <Text style={styles.textMessage} numberOfLines={1}>
-                Friend
+                Friends since {moment(props.friend.approvedAt).format("LL")}
               </Text>
             </View>
           </View>

@@ -77,12 +77,12 @@ export default function FriendsView({ route, navigation }) {
         data: inpendingFriends,
       },
       {
-        title: "Friends",
-        data: approvedFriends,
-      },
-      {
         title: "Pending",
         data: outpendingFriends,
+      },
+      {
+        title: "Friends",
+        data: approvedFriends,
       },
     ]);
   }, [inpendingFriends, outpendingFriends, approvedFriends]);

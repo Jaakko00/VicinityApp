@@ -107,11 +107,11 @@ export default function PendingFriendCard(props) {
                   {`${props.friend.firstName} ${props.friend.lastName}`}
                 </Text>
 
-                <Text style={styles.text}>Text</Text>
+                <Text style={styles.text}>Pending</Text>
               </View>
 
               <Text style={styles.textMessage} numberOfLines={1}>
-                Pending
+                Mitä tähän laittaisi
               </Text>
             </View>
           </View>

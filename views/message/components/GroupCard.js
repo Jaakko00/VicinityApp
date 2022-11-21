@@ -126,9 +126,7 @@ export default function GroupCard(props) {
                 <Text style={styles.textHeader}>{`${props.group.name}`}</Text>
                 {latestMessage && (
                   <Text style={styles.text}>
-                    {moment(latestMessage.sentAt).isSame(new Date(), "day")
-                      ? moment(latestMessage.sentAt).format("hh:mm")
-                      : moment(latestMessage.sentAt).format("D.M.")}
+                    {moment(latestMessage.sentAt).fromNow()}
                   </Text>
                 )}
               </View>

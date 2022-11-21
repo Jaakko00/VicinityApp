@@ -67,9 +67,19 @@ export default function FriendCard(props) {
       fontFamily: "Futura",
       color: "#7a7a7a",
     },
+    textNew: {
+      fontFamily: "Futura",
+      color: "#000",
+      fontWeight: "bold",
+    },
     textHeader: {
       fontFamily: "Futura",
       fontSize: 16,
+    },
+    textHeaderNew: {
+      fontFamily: "Futura",
+      fontSize: 16,
+      fontWeight: "bold",
     },
     textMessage: {
       fontFamily: "Futura",
@@ -156,14 +166,28 @@ export default function FriendCard(props) {
 
             <View style={styles.cardHeaderText}>
               <View style={styles.cardFirstRow}>
-                <Text style={styles.textHeader}>
+                <Text
+                  style={
+                    latestMessage
+                      ? latestMessage.uid === user.uid || latestMessage.seen
+                        ? styles.textHeader
+                        : styles.textHeaderNew
+                      : styles.textHeader
+                  }
+                >
                   {`${props.friend.firstName} ${props.friend.lastName}`}
                 </Text>
                 {latestMessage && (
-                  <Text style={styles.text}>
-                    {moment(latestMessage.sentAt).isSame(new Date(), "day")
-                      ? moment(latestMessage.sentAt).format("hh:mm")
-                      : moment(latestMessage.sentAt).format("D.M.")}
+                  <Text
+                    style={
+                      latestMessage
+                        ? latestMessage.uid === user.uid || latestMessage.seen
+                          ? styles.text
+                          : styles.textNew
+                        : styles.text
+                    }
+                  >
+                    {moment(latestMessage.sentAt).fromNow()}
                   </Text>
                 )}
               </View>
@@ -178,8 +202,7 @@ export default function FriendCard(props) {
                 }
                 numberOfLines={1}
               >
-                {latestMessage &&
-                !(latestMessage.uid !== user.uid && latestMessage.seen) ? (
+                {latestMessage && !(latestMessage.uid !== user.uid) ? (
                   <MaterialCommunityIcons
                     name={
                       latestMessage
