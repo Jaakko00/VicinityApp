@@ -223,6 +223,7 @@ const AuthenticatedUserProvider = ({ children }) => {
       where("friendRef", "==", doc(firestore, "user", user.uid))
     );
 
+    // Get friends where user is the request sender
     const unSub1 = onSnapshot(friendQuery1, (querySnapshot) => {
       querySnapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
@@ -250,7 +251,6 @@ const AuthenticatedUserProvider = ({ children }) => {
               ])
             );
           } else if (change.doc.data().status === "approved") {
-            console.log("YOUR REQUEST WAS APPROVED");
             getDoc(change.doc.data().friendRef).then((result) => {
               setOutpendingFriends((oldArray) =>
                 oldArray.filter((item) => item.connection_id !== change.doc.id)
@@ -276,6 +276,7 @@ const AuthenticatedUserProvider = ({ children }) => {
       });
     });
 
+    // Get friends where user is the request receiver
     const unSub2 = onSnapshot(friendQuery2, (querySnapshot) => {
       querySnapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
@@ -303,7 +304,6 @@ const AuthenticatedUserProvider = ({ children }) => {
               ])
             );
           } else if (change.doc.data().status === "approved") {
-            console.log("YOUR APPROVED THE REQUEST");
             getDoc(change.doc.data().userRef).then((result) => {
               setInpendingFriends((oldArray) =>
                 oldArray.filter((item) => item.connection_id !== change.doc.id)
