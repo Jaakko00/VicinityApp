@@ -56,6 +56,7 @@ export default function Avatar(props) {
       style={props.story ? styles.storyAvatar : styles.avatar}
       activeOpacity={0.6}
       underlayColor="#DDDDDD"
+      disabled={!props.onPress}
       onPress={props.onPress}
     >
       {props.loading && (

@@ -2,7 +2,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { Audio } from "expo-av";
-import moment from "moment";
 import {
   collection,
   doc,
@@ -16,6 +15,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
+import moment from "moment";
 import * as React from "react";
 import { useEffect, useState, useContext } from "react";
 import {
@@ -30,9 +30,9 @@ import {
 
 import { AuthenticatedUserContext } from "../../App";
 import { auth, firestore } from "../../config/firebase";
+import ChatHeader from "./components/ChatHeader";
 import DateSection from "./components/DateSection";
 import InfoMessage from "./components/InfoMessage";
-import ChatHeader from "./components/ChatHeader";
 import InputField from "./components/InputField";
 import TextBubbleReceived from "./components/TextBubbleReceived";
 import TextBubbleSent from "./components/TextBubbleSent";
@@ -76,7 +76,7 @@ export default function ChatView(props, { route, navigation }) {
       unSub = onSnapshot(
         collection(firestore, `friends/${friend.id}`, "messages"),
         (querySnapshot) => {
-          let loaded = false;
+          const loaded = false;
           setMessages(
             querySnapshot.docs.map((msg) => ({ ...msg.data(), id: msg.id }))
           );
@@ -194,20 +194,18 @@ export default function ChatView(props, { route, navigation }) {
         let foundDate = false;
         tempSortedMessages.forEach((sort) => {
           if (moment(sort.date).isSame(moment(message.sentAt), "day")) {
-            console.log("pvm löytyi");
             foundDate = true;
             sort.data.push(message);
           }
         });
         if (!foundDate) {
-          console.log("pvm ei löytynyt");
           tempSortedMessages.push({
             date: message.sentAt,
             data: [message],
           });
         }
       });
-    console.log("sortedMessages", tempSortedMessages);
+
     setSortedMessages(tempSortedMessages);
   };
 
@@ -280,37 +278,11 @@ export default function ChatView(props, { route, navigation }) {
             renderSectionFooter={({ section: { date } }) => (
               <DateSection date={date} />
             )}
+            ListHeaderComponent={<View style={{ margin: 5 }} />}
+            ListFooterComponent={<View style={{ margin: 5 }} />}
             inverted
           />
-          {/* <FlatList
-            data={messages.sort(function (a, b) {
-              const c = new Date(a.sentAt);
-              const d = new Date(b.sentAt);
-              return d - c;
-            })}
-            ListFooterComponent={<ChatFooter approvedAt={approvedAt} />}
-            ListHeaderComponent={<View style={{ margin: 5 }} />}
-            renderItem={(msg) =>
-              msg.item.uid !== user.uid ? (
-                <TextBubbleReceived
-                  key={msg.item.id}
-                  message={msg.item}
-                  showReactions={showReactions}
-                  setShowReactions={setShowReactions}
-                  reactToMessage={reactToMessage}
-                />
-              ) : (
-                <TextBubbleSent
-                  key={msg.item.id}
-                  message={msg.item}
-                  showDelete={showDelete}
-                  setShowDelete={setShowDelete}
-                  deleteMessage={deleteMessage}
-                />
-              )
-            }
-            inverted
-          /> */}
+
           <InputField sendNewMessage={sendNewMessage} />
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>

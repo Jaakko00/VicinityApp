@@ -3,78 +3,100 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   Text,
   View,
   StyleSheet,
   Image,
   ScrollView,
-  Button,
-  Pressable,
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-navigation";
+import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 
-import Avatar from "../../../components/Avatar";
-import UserAvatar from "../../../components/UserAvatar";
-import PreviewImage from "../../home/components/PreviewImage";
-
-export default function MessageHeader(props) {
+export default function HomeHeader(props) {
+  const { user, setUser, inpendingFriends } = useContext(
+    AuthenticatedUserContext
+  );
+  const { theme } = useContext(ThemeContext);
   const styles = {
     header: {
       zIndex: 999,
       backgroundColor: "#fff",
       width: "100%",
       height: "15%",
+      justifyContent: "flex-end",
+    },
+    headerContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+      height: "100%",
     },
     logo: {
-      width: "100%",
-      height: "98%",
+      maxWidth: "40%",
+      height: "50%",
       resizeMode: "contain",
-    },
-    card: {
       margin: 10,
     },
-    cardHeader: {
+    accountIcon: {
+      width: 40,
+      margin: 10,
       flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    cardHeaderText: {
-      margin: 5,
-      padding: 5,
-      borderColor: "#E40066",
-    },
-    text: {
-      fontFamily: "Futura",
-      color: "#7a7a7a",
-    },
-    textHeader: {
-      fontFamily: "Futura",
-      fontSize: 20,
-    },
-    textMessage: {
-      fontFamily: "Futura",
-      color: "#7a7a7a",
-    },
-    textMessageNew: {
-      fontFamily: "Futura",
-      color: "#000",
-      fontWeight: "bold",
+      justifyContent: "space-between",
     },
   };
   return (
-    <View style={styles.header}>
-      <SafeAreaView>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={styles.cardHeaderText}>
-              <Text style={styles.textHeader}>Messages</Text>
+    <SafeAreaView style={styles.header}>
+      <View style={styles.headerContainer}>
+        <Image
+          style={styles.logo}
+          source={require("../../../assets/Vicinity-text-transparent.png")}
+        />
+        <View style={styles.accountIcon}>
+          {/* <TouchableOpacity onPress={() => props.navigation.navigate("User")}>
+            <Text>
+              <MaterialCommunityIcons name="account" size={35} color="#000" />
+            </Text>
+          </TouchableOpacity> */}
+          <TouchableOpacity
+            onPress={() => props.navigation.navigate("Friends")}
+          >
+            <View>
+              <MaterialCommunityIcons
+                name="account-group"
+                size={35}
+                color="#000"
+              />
+              {inpendingFriends.length > 0 && (
+                <View
+                  style={{
+                    position: "absolute",
+                    right: -4,
+                    top: -4,
+                    backgroundColor: theme.colors.primary,
+                    borderRadius: "50%",
+                    borderWidth: 2,
+                    borderColor: theme.colors.background,
+
+                    padding: 2,
+
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <MaterialCommunityIcons
+                    name="exclamation-thick"
+                    color={theme.colors.background}
+                    size={12}
+                  />
+                </View>
+              )}
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }

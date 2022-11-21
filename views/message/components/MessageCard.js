@@ -54,7 +54,7 @@ export default function FriendCard(props) {
     cardFirstRow: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "center"
+      alignItems: "center",
     },
     shadowProp: {
       padding: 7,
@@ -196,8 +196,6 @@ export default function FriendCard(props) {
                     color="#276fbf"
                     style={styles.sendIcon}
                   />
-                ) : latestMessage ? (
-                  props.friend.firstName + " -"
                 ) : (
                   ""
                 )}{" "}

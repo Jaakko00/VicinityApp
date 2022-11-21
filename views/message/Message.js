@@ -21,18 +21,20 @@ import {
   StyleSheet,
   RefreshControl,
   FlatList,
+  TouchableOpacity,
 } from "react-native";
-import { SafeAreaView } from "react-navigation";
+import { SafeAreaView, ThemeColors } from "react-navigation";
 import StoryAvatar from "../../components/StoryAvatar";
 import getTime from "../../utils/getTime";
 
-import { AuthenticatedUserContext } from "../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../App";
 import MessageHeader from "./components/MessageHeader";
 import { auth, firestore } from "../../config/firebase";
 import ChatView from "../chat/Chat";
 import GroupChatView from "../chat/GroupChat";
+import FriendsView from "../friends/Friends";
 import AddPostButton from "../home/components/AddPostButton";
-import FriendCard from "./components/FriendCard";
+import MessageCard from "./components/MessageCard";
 import GroupCard from "./components/GroupCard";
 const Stack = createStackNavigator();
 
@@ -42,48 +44,14 @@ export function MessageView({ navigation, route }) {
   const [posts, setPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const { user, setUser } = useContext(AuthenticatedUserContext);
-  const { userInfo, setUserInfo } = useContext(AuthenticatedUserContext);
+  const { user, approvedFriends, newMessages } = useContext(
+    AuthenticatedUserContext
+  );
+  const { theme } = useContext(ThemeContext);
 
-  const [friends, setFriends] = useState([]);
   const [groups, setGroups] = useState([]);
 
   // Create a reference under which you want to list
-  const listRef = ref(storage, "images/");
-
-  const getFriends = async () => {
-    const friendRefs = [];
-    const friendQuery1 = query(
-      collection(firestore, "friends"),
-      where("userRef", "==", doc(firestore, "user", user.uid)),
-      where("status", "==", "approved")
-    );
-
-    const friendQuery2 = query(
-      collection(firestore, "friends"),
-      where("friendRef", "==", doc(firestore, "user", user.uid)),
-      where("status", "==", "approved")
-    );
-
-    const querySnapshot1 = await getDocs(friendQuery1);
-
-    querySnapshot1.forEach((friend) => {
-      friendRefs.push(friend.data().friendRef);
-    });
-
-    const querySnapshot2 = await getDocs(friendQuery2);
-
-    querySnapshot2.forEach((friend) => {
-      friendRefs.push(friend.data().userRef);
-    });
-
-    friendRefs.forEach((ref) => {
-      getDoc(ref).then((result) =>
-        setFriends((oldArray) => [...oldArray, result.data()])
-      );
-    });
-  };
-
   const getGroups = async () => {
     const groupQuery = query(
       collection(firestore, "group"),
@@ -101,9 +69,6 @@ export function MessageView({ navigation, route }) {
   };
 
   useEffect(() => {
-    if (!friends.length) {
-      getFriends();
-    }
     if (!groups.length) {
       getGroups();
     }
@@ -134,23 +99,44 @@ export function MessageView({ navigation, route }) {
       fontSize: 18,
       backgroundColor: "#fff",
     },
+    headerIcon: {
+      padding: 5,
+      paddingRight: 10,
+      fontFamily: "Futura",
+    },
+    headerContainer: {
+      flexGrow: 1,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    placeholderText: {
+      padding: 5,
+      fontFamily: "Futura",
+
+      backgroundColor: "#fff",
+      color: theme.colors.textSecondary,
+    },
     messagesView: { flexGrow: 1, flex: 1 },
     scrollViewHorizontal: { height: 150 },
     userAvatar: {
       margin: 10,
       alignItems: "center",
     },
+    empty: {
+      alignItems: "center",
+    },
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <MessageHeader />
+      <MessageHeader navigation={navigation} />
       <ScrollView>
-        <View style={styles.scrollViewHorizontal}>
+        {/* <View style={styles.scrollViewHorizontal}>
           <Text style={styles.header}>Stories</Text>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }} horizontal>
             <View style={styles.horizontalView}>
-              {friends.map((frn) => {
+              {approvedFriends.map((frn) => {
                 return (
                   <View key={frn.uid} style={styles.userAvatar}>
                     <StoryAvatar
@@ -165,10 +151,27 @@ export function MessageView({ navigation, route }) {
               })}
             </View>
           </ScrollView>
-        </View>
+        </View> */}
         <View style={styles.messagesView}>
-          <Text style={styles.header}>Groups</Text>
+          <View style={styles.headerContainer}>
+            <Text style={styles.header}>Groups</Text>
+            <TouchableOpacity
+              onPress={() => console.log("Open group creation modal")}
+            >
+              <MaterialCommunityIcons
+                style={styles.headerIcon}
+                name="plus"
+                size={35}
+                color="#000"
+              />
+            </TouchableOpacity>
+          </View>
 
+          {groups.length < 1 && (
+            <View style={styles.empty}>
+              <Text style={styles.placeholderText}>Add or join a group</Text>
+            </View>
+          )}
           {groups.map((group) => {
             return (
               <GroupCard key={group.id} group={group} navigation={navigation} />
@@ -177,10 +180,17 @@ export function MessageView({ navigation, route }) {
         </View>
         <View style={styles.messagesView}>
           <Text style={styles.header}>Messages</Text>
+          {approvedFriends.length < 1 && (
+            <View style={styles.empty}>
+              <Text style={styles.placeholderText}>
+                Add friends from your neighbourhood
+              </Text>
+            </View>
+          )}
 
-          {friends.map((frn) => {
+          {approvedFriends.map((frn) => {
             return (
-              <FriendCard key={frn.uid} friend={frn} navigation={navigation} />
+              <MessageCard key={frn.uid} friend={frn} navigation={navigation} />
             );
           })}
         </View>
@@ -206,6 +216,7 @@ export default function MessageStack({ navigation, route }) {
       />
       <Stack.Screen name="Chat" component={ChatView} />
       <Stack.Screen name="GroupChat" component={GroupChatView} />
+      <Stack.Screen name="Friends" component={FriendsView} />
     </Stack.Navigator>
   );
 }

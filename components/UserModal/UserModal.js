@@ -122,6 +122,15 @@ export default function UserModal(props) {
         status: "approved",
         approvedAt: Date.now(),
       });
+      await addDoc(
+        collection(firestore, "friends", friendConnection.id, "messages"),
+        {
+          message: "You are now friends!",
+          sentAt: Date.now(),
+          type: "info",
+          seen: true,
+        }
+      );
       setFriendStatus("approved");
     } else if (friendStatus === "approved" || friendStatus === "outpending") {
       console.log("Removing friend");

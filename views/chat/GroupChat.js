@@ -164,26 +164,24 @@ export default function GroupChatView(props, { route, navigation }) {
         let foundDate = false;
         tempSortedMessages.forEach((sort) => {
           if (moment(sort.date).isSame(moment(message.sentAt), "day")) {
-            console.log("pvm löytyi");
             foundDate = true;
             sort.data.push(message);
           }
         });
         if (!foundDate) {
-          console.log("pvm ei löytynyt");
           tempSortedMessages.push({
             date: message.sentAt,
             data: [message],
           });
         }
       });
-    console.log("sortedMessages", tempSortedMessages);
+
     setSortedMessages(tempSortedMessages);
   };
 
   useEffect(() => {
     if (messages) {
-      setMessagesAsSeen();
+      //setMessagesAsSeen(); // NOT IN USE
       sortMessagesToDates();
     }
   }, [messages]);
@@ -244,51 +242,11 @@ export default function GroupChatView(props, { route, navigation }) {
             renderSectionFooter={({ section: { date } }) => (
               <DateSection date={date} />
             )}
+            ListHeaderComponent={<View style={{ margin: 5 }} />}
+            ListFooterComponent={<View style={{ margin: 5 }} />}
             inverted
           />
 
-          {/* <FlatList
-            data={messages.sort(function (a, b) {
-              const c = new Date(a.sentAt);
-              const d = new Date(b.sentAt);
-              return d - c;
-            })}
-            ListFooterComponent={<View style={{ margin: 5 }} />}
-            ListHeaderComponent={<View style={{ margin: 5 }} />}
-            renderItem={(msg, index) => {
-              if (!msg.item.uid) {
-                return (
-                  <InfoMessage
-                    message={msg.item}
-                    secondaryMessage={msg.item.sentAt}
-                  />
-                );
-              } else if (msg.item.uid !== user.uid) {
-                return (
-                  <GroupTextBubbleReceived
-                    key={msg.item.id}
-                    group={group}
-                    message={msg.item}
-                    showReactions={showReactions}
-                    setShowReactions={setShowReactions}
-                    reactToMessage={reactToMessage}
-                  />
-                );
-              } else {
-                return (
-                  <GroupTextBubbleSent
-                    key={msg.item.id}
-                    group={group}
-                    message={msg.item}
-                    showDelete={showDelete}
-                    setShowDelete={setShowDelete}
-                    deleteMessage={deleteMessage}
-                  />
-                );
-              }
-            }}
-            inverted
-          /> */}
           <InputField sendNewMessage={sendNewMessage} />
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>

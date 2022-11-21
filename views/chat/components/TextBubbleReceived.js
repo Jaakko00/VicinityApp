@@ -182,7 +182,7 @@ export default function TextBubbleReceived(props) {
                   {props.message.message}
                 </Text>
                 <Text style={styles.textSecondary}>
-                  {moment(props.message.sentAt).format("d.M. hh:mm")}
+                  {moment(props.message.sentAt).format("hh:mm")}
                 </Text>
               </View>
             </View>

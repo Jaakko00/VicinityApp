@@ -139,7 +139,7 @@ export default function TextBubbleSent(props) {
                   {props.message.message}
                 </Text>
                 <Text style={styles.textSecondary}>
-                  {moment(props.message.sentAt).format("d.M. hh:mm")}
+                  {moment(props.message.sentAt).format("hh:mm")}
                   {props.message.seen ? (
                     <MaterialCommunityIcons
                       name="eye-check"
