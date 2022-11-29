@@ -43,7 +43,6 @@ export default function Avatar(props) {
       alignItems: "center",
       borderWidth: 2,
       borderColor: "#fff",
-      
     },
     image: {
       width: props.width,
@@ -51,6 +50,8 @@ export default function Avatar(props) {
     },
     spinner: {},
   };
+
+  const placeholder = require("../assets/icon.png");
   return (
     <TouchableOpacity
       style={props.story ? styles.storyAvatar : styles.avatar}
@@ -63,7 +64,10 @@ export default function Avatar(props) {
         <ActivityIndicator style={styles.spinner} size="large" />
       )}
       {!props.loading && (
-        <Image style={styles.image} source={{ uri: props.image }} />
+        <Image
+          style={styles.image}
+          source={props.image ? { uri: props.image } : placeholder}
+        />
       )}
     </TouchableOpacity>
   );

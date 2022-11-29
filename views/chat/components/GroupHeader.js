@@ -57,6 +57,7 @@ export default function GroupHeader(props) {
       margin: 5,
       padding: 5,
       borderColor: "#E40066",
+      alignItems: "center",
     },
     text: {
       fontFamily: "Futura",
@@ -92,6 +93,7 @@ export default function GroupHeader(props) {
           </TouchableOpacity>
           <View style={styles.cardHeaderText}>
             <Text style={styles.textHeader}>{props.group.name}</Text>
+            <Text style={styles.text}>{props.group.id}</Text>
           </View>
           <GroupAvatar
             style={styles.avatar}

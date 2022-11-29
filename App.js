@@ -357,6 +357,16 @@ const ThemeProvider = ({ children }) => {
       text: "#000",
       textSecondary: "#7a7a7a",
     },
+    text: {
+      headerText: 18,
+      bodyText: 14,
+    },
+    size: {
+      margin: 10,
+      borderRadius: 10,
+      paddingSmall: 5,
+      paddingBig: 10,
+    },
   };
 
   return (

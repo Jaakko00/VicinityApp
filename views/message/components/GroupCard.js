@@ -67,6 +67,10 @@ export default function GroupCard(props) {
       fontFamily: "Futura",
       color: "#7a7a7a",
     },
+    leaveText: {
+      fontFamily: "Futura",
+      color: "red",
+    },
     textHeader: {
       fontFamily: "Futura",
       fontSize: 16,
@@ -85,6 +89,7 @@ export default function GroupCard(props) {
   const { user, setUser } = useContext(AuthenticatedUserContext);
 
   const [latestMessage, setLatestMessage] = useState();
+  const [showLeaveGroupButton, setShowLeaveGroupButton] = useState(false);
 
   const getLatestMessage = async () => {
     const latestMessageQuery = query(
@@ -106,9 +111,11 @@ export default function GroupCard(props) {
   return (
     <View style={styles.card}>
       <TouchableOpacity
-        onPress={() =>
-          props.navigation.navigate("GroupChat", { group: props.group })
-        }
+        onPress={() => {
+          setShowLeaveGroupButton(false)
+          props.navigation.navigate("GroupChat", { group: props.group });
+        }}
+        onLongPress={() => setShowLeaveGroupButton(true)}
         activeOpacity={0.6}
         underlayColor="#DDDDDD"
       >
@@ -124,10 +131,21 @@ export default function GroupCard(props) {
             <View style={styles.cardHeaderText}>
               <View style={styles.cardFirstRow}>
                 <Text style={styles.textHeader}>{`${props.group.name}`}</Text>
-                {latestMessage && (
+                {latestMessage && !showLeaveGroupButton ? (
                   <Text style={styles.text}>
                     {moment(latestMessage.sentAt).fromNow()}
                   </Text>
+                ) : showLeaveGroupButton ? (
+                  <TouchableOpacity
+                    onPress={() => {
+                      props.leaveGroup(props.group.id);
+                      setShowLeaveGroupButton(false);
+                    }}
+                  >
+                    <Text style={styles.leaveText} >Leave group</Text>
+                  </TouchableOpacity>
+                ) : (
+                  ""
                 )}
               </View>
 

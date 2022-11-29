@@ -178,15 +178,7 @@ export default function FriendCard(props) {
                   {`${props.friend.firstName} ${props.friend.lastName}`}
                 </Text>
                 {latestMessage && (
-                  <Text
-                    style={
-                      latestMessage
-                        ? latestMessage.uid === user.uid || latestMessage.seen
-                          ? styles.text
-                          : styles.textNew
-                        : styles.text
-                    }
-                  >
+                  <Text style={styles.text}>
                     {moment(latestMessage.sentAt).fromNow()}
                   </Text>
                 )}
@@ -221,7 +213,7 @@ export default function FriendCard(props) {
                   />
                 ) : (
                   ""
-                )}{" "}
+                )}
                 {latestMessage
                   ? latestMessage.message
                   : "Start a conversation!"}

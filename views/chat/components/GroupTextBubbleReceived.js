@@ -29,12 +29,15 @@ import {
 import { firestore } from "../../../config/firebase";
 
 import { AuthenticatedUserContext } from "../../../App";
+import { ThemeContext } from "../../../App";
 import Avatar from "../../../components/Avatar";
 import UserAvatar from "../../../components/UserAvatar";
 import PreviewImage from "../../home/components/PreviewImage";
+import { ThemeColors } from "react-navigation";
 
 export default function GroupTextBubbleReceived(props) {
   const [color, setColor] = useState("");
+  const {theme} = useContext(ThemeContext);
   const styles = {
     bubbleContainer: {
       flex: 1,
@@ -47,7 +50,7 @@ export default function GroupTextBubbleReceived(props) {
     bubble: {
       position: "relative",
       backgroundColor: "#fff",
-      borderColor: color,
+      borderColor: color || theme.colors.primary,
       borderWidth: 2,
       padding: 15,
 
@@ -56,7 +59,7 @@ export default function GroupTextBubbleReceived(props) {
       minWidth: "40%",
       maxWidth: "70%",
 
-      shadowColor: color,
+      shadowColor: color || theme.colors.primary,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
@@ -93,7 +96,7 @@ export default function GroupTextBubbleReceived(props) {
     senderText: {
       fontFamily: "Futura",
       fontSize: 16,
-      color: color,
+      color: color || theme.colors.primary,
     },
     textDeleted: {
       fontFamily: "Futura",

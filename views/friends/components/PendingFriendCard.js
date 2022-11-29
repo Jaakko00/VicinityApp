@@ -111,7 +111,7 @@ export default function PendingFriendCard(props) {
               </View>
 
               <Text style={styles.textMessage} numberOfLines={1}>
-                Mitä tähän laittaisi
+                You sent a friend request
               </Text>
             </View>
           </View>
