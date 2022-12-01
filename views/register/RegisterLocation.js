@@ -33,10 +33,14 @@ import { auth, firestore } from "../../config/firebase";
 import RegisterButton from "./components/RegisterButton";
 import { ThemeContext, RegisterContext } from "../../App";
 import * as Location from "expo-location";
+import TOSModal from "./components/TOSModal";
+import PPModal from "./components/PPModal";
 
 export default function RegisterLocation({ navigation, route }) {
   const { theme } = useContext(ThemeContext);
   const [loadingRegistration, setLoadingRegistration] = useState(false);
+  const [TOSModalVisible, setTOSModalVisible] = useState(false);
+  const [PPModalVisible, setPPModalVisible] = useState(false);
   const { registerData, setRegisterData } = useContext(RegisterContext);
   const {
     firstName,
@@ -83,7 +87,7 @@ export default function RegisterLocation({ navigation, route }) {
       zIndex: 10,
       minHeight: "80%",
       maxHeight: "80%",
-      borderBottomLeftRadius: "50%",
+      borderBottomRightRadius: "50%",
     },
     textInputContainer: {
       flexDirection: "row",
@@ -155,6 +159,53 @@ export default function RegisterLocation({ navigation, route }) {
       fontFamily: "Futura",
       fontSize: 18,
     },
+    bottomContainer: {
+      flex: 1,
+      backgroundColor: "white",
+    },
+    registerContainer: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: theme.colors.secondary,
+      borderTopLeftRadius: 100,
+    },
+    bottomBubbleContainer: {
+      width: "90%",
+      flexDirection: "row",
+      justifyContent: "flex-start",
+    },
+    bigBubble: {
+      width: 40,
+      height: 40,
+      borderRadius: "50%",
+      backgroundColor: "white",
+      margin: 10,
+    },
+    smallBubble: {
+      width: 20,
+      height: 20,
+      borderRadius: "50%",
+      backgroundColor: "white",
+    },
+    registerTextContainer: {
+      flexDirection: "row",
+      backgroundColor: "white",
+      padding: 20,
+      borderRadius: "50%",
+      width: "80%",
+      justifyContent: "center",
+    },
+    registerText: {
+      color: theme.colors.text,
+      fontFamily: "Futura",
+      fontSize: 18,
+    },
+    registerTextButton: {
+      color: theme.colors.secondary,
+      fontFamily: "Futura",
+      fontSize: 18,
+    },
   };
 
   const onHandleSignup = async () => {
@@ -206,7 +257,7 @@ export default function RegisterLocation({ navigation, route }) {
     <>
       <SafeAreaView style={{ flexGrow: 0, backgroundColor: "white" }} />
       <SafeAreaView
-        style={{ flexGrow: 1, backgroundColor: theme.colors.primary }}
+        style={{ flexGrow: 1, backgroundColor: theme.colors.secondary }}
       >
         <View style={styles.container}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -287,11 +338,17 @@ export default function RegisterLocation({ navigation, route }) {
                 <View style={styles.infoTextContainer}>
                   <Text style={styles.infoText}>
                     By clicking the button below, you agree to our{" "}
-                    <Text style={{ color: theme.colors.secondary }}>
+                    <Text
+                      style={{ color: theme.colors.secondary }}
+                      onPress={() => setTOSModalVisible(true)}
+                    >
                       Terms of Service
                     </Text>{" "}
                     and{" "}
-                    <Text style={{ color: theme.colors.secondary }}>
+                    <Text
+                      style={{ color: theme.colors.secondary }}
+                      onPress={() => setPPModalVisible(true)}
+                    >
                       Privacy Policy
                     </Text>
                   </Text>
@@ -340,6 +397,14 @@ export default function RegisterLocation({ navigation, route }) {
           </TouchableWithoutFeedback>
         </View>
       </SafeAreaView>
+      <TOSModal
+        TOSModalVisible={TOSModalVisible}
+        setTOSModalVisible={setTOSModalVisible}
+      />
+      <PPModal
+        PPModalVisible={PPModalVisible}
+        setPPModalVisible={setPPModalVisible}
+      />
     </>
   );
 }

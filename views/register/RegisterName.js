@@ -145,7 +145,7 @@ export default function RegisterName({ navigation }) {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: theme.colors.primary,
+      backgroundColor: theme.colors.secondary,
       borderTopLeftRadius: 100,
     },
     bottomBubbleContainer: {
@@ -186,54 +186,11 @@ export default function RegisterName({ navigation }) {
     },
   };
 
-  // const onHandleSignup = (email, password, passwordAgain) => {
-  //   if (email !== "" && password !== "") {
-  //     if (password === passwordAgain) {
-  //       createUserWithEmailAndPassword(auth, email, password)
-  //         .then((user) => createUser(user))
-  //         .catch((err) => console.log(`Login err: ${err}`));
-  //     } else {
-  //       console.log("Passwords are not same");
-  //     }
-  //   } else {
-  //     console.log("Please give email and password");
-  //   }
-  // };
-
-  // const createUser = async (user) => {
-  //   console.log("Creating user for", user);
-  //   if (user) {
-  //     await setDoc(doc(firestore, "user", user.user.uid), {
-  //       email: user._tokenResponse.email,
-  //       uid: user.user.uid,
-  //       phone,
-  //       firstName,
-  //       lastName,
-  //       street1,
-  //       street2,
-  //       postal,
-  //       city,
-  //     });
-  //   }
-  // };
-
-  // const allowRegistration = Boolean(
-  //   email &&
-  //     phone &&
-  //     firstName &&
-  //     lastName &&
-  //     street1 &&
-  //     postal &&
-  //     city &&
-  //     password &&
-  //     password === passwordAgain
-  // );
-
   return (
     <>
       <SafeAreaView style={{ flexGrow: 0, backgroundColor: "white" }} />
       <SafeAreaView
-        style={{ flexGrow: 1, backgroundColor: theme.colors.primary }}
+        style={{ flexGrow: 1, backgroundColor: theme.colors.secondary }}
       >
         <View style={styles.container}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -296,7 +253,7 @@ export default function RegisterName({ navigation }) {
                         ? styles.buttonDisabled
                         : styles.button
                     }
-                    // disabled={!(firstName.length && lastName.length)}
+                    disabled={!(firstName.length && lastName.length)}
                     onPress={() =>
                       navigation.navigate("Register2", {
                         firstName: firstName,

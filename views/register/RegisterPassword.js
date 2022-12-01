@@ -1,5 +1,5 @@
-import { createUserWithEmailAndPassword } from "firebase/auth";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import {
   collection,
   doc,
@@ -27,9 +27,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 
+import { ThemeContext, RegisterContext } from "../../App";
 import { auth, firestore } from "../../config/firebase";
 import RegisterButton from "./components/RegisterButton";
-import { ThemeContext, RegisterContext } from "../../App";
 
 export default function RegisterPassword({ navigation, route }) {
   const { theme } = useContext(ThemeContext);
@@ -72,7 +72,7 @@ export default function RegisterPassword({ navigation, route }) {
       zIndex: 10,
       minHeight: "70%",
       maxHeight: "70%",
-      borderBottomLeftRadius: "50%",
+      borderBottomRightRadius: "50%",
     },
     infoTextContainer: {
       margin: theme.size.margin,
@@ -148,8 +148,8 @@ export default function RegisterPassword({ navigation, route }) {
       flex: 1,
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: theme.colors.primary,
-      borderTopRightRadius: 100,
+      backgroundColor: theme.colors.secondary,
+      borderTopLeftRadius: 100,
     },
     bottomBubbleContainer: {
       width: "90%",
@@ -193,7 +193,7 @@ export default function RegisterPassword({ navigation, route }) {
     <>
       <SafeAreaView style={{ flexGrow: 0, backgroundColor: "white" }} />
       <SafeAreaView
-        style={{ flexGrow: 1, backgroundColor: theme.colors.primary }}
+        style={{ flexGrow: 1, backgroundColor: theme.colors.secondary }}
       >
         <View style={styles.container}>
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -311,10 +311,10 @@ export default function RegisterPassword({ navigation, route }) {
                     // }
                     onPress={() =>
                       navigation.navigate("Register3", {
-                        firstName: firstName,
-                        lastName: lastName,
-                        email: email,
-                        password: password,
+                        firstName,
+                        lastName,
+                        email,
+                        password,
                       })
                     }
                   >
