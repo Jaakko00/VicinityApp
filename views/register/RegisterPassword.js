@@ -1,5 +1,14 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  collection,
+  doc,
+  where,
+  query,
+  getDocs,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
 import React, { useState, useContext } from "react";
 import {
   StyleSheet,
@@ -7,27 +16,28 @@ import {
   View,
   Button,
   TextInput,
+  ScrollView,
+  SafeAreaView,
+  ImageBackground,
+  Platform,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
-  ImageBackground,
-  TouchableOpacity,
   Image,
-  SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
-import { ThemeContext } from "../../App";
 
-import { LinearGradient } from "expo-linear-gradient";
+import { auth, firestore } from "../../config/firebase";
+import RegisterButton from "./components/RegisterButton";
+import { ThemeContext, RegisterContext } from "../../App";
 
-import { auth } from "../../config/firebase";
-
-export default function Login({ navigation }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
-
+export default function RegisterPassword({ navigation, route }) {
   const { theme } = useContext(ThemeContext);
+  const { error } = route.params;
+
+  const { registerData, setRegisterData } = useContext(RegisterContext);
+  const { firstName, lastName, email, password, passwordAgain } = registerData;
+
   const styles = {
     container: {
       flex: 1,
@@ -60,8 +70,8 @@ export default function Login({ navigation }) {
       padding: 20,
       backgroundColor: "white",
       zIndex: 10,
-      minHeight: "50%",
-      maxHeight: "60%",
+      minHeight: "70%",
+      maxHeight: "70%",
       borderBottomLeftRadius: "50%",
     },
     infoTextContainer: {
@@ -179,23 +189,6 @@ export default function Login({ navigation }) {
     },
   };
 
-  const onHandleLogin = () => {
-    if (email !== "" && password !== "") {
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => console.log("Login success"))
-        .catch((err) => handleLoginError(err));
-    } else {
-      console.log("Please give email and password");
-    }
-  };
-
-  const handleLoginError = (err) => {
-    setError(true);
-    setEmail("");
-    setPassword("");
-    console.log(err);
-  };
-
   return (
     <>
       <SafeAreaView style={{ flexGrow: 0, backgroundColor: "white" }} />
@@ -209,32 +202,36 @@ export default function Login({ navigation }) {
                 <View style={styles.logoContainer}>
                   <Image
                     style={styles.logo}
-                    source={require("../../assets/Vicinity-text-transparent.png")}
+                    source={require("../../assets/letsGetStarted.png")}
                   />
                 </View>
                 {error && (
                   <View style={styles.infoTextContainer}>
-                    <Text style={styles.infoText}>
-                      Invalid username or password
-                    </Text>
+                    <Text style={styles.infoText}>Email already in use</Text>
                   </View>
                 )}
                 <View style={styles.textInputContainer}>
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Enter email"
+                    placeholder="Let's get your email"
                     autoCapitalize="none"
                     keyboardType="email-address"
                     textContentType="emailAddress"
                     value={email}
-                    onChangeText={(text) => setEmail(text)}
+                    onChangeText={(text) =>
+                      setRegisterData({ ...registerData, email: text })
+                    }
                   />
                   <MaterialCommunityIcons
                     style={styles.textInputIcon}
-                    name="account"
+                    name={
+                      email.includes("@") && email.includes(".")
+                        ? "email-check"
+                        : "email"
+                    }
                     size={24}
                     color={
-                      email.length
+                      email.includes("@") && email.includes(".")
                         ? theme.colors.primary
                         : theme.colors.textSecondary
                     }
@@ -249,14 +246,44 @@ export default function Login({ navigation }) {
                     secureTextEntry
                     textContentType="password"
                     value={password}
-                    onChangeText={(text) => setPassword(text)}
+                    onChangeText={(text) =>
+                      setRegisterData({ ...registerData, password: text })
+                    }
                   />
                   <MaterialCommunityIcons
                     style={styles.textInputIcon}
-                    name={password.length ? "lock-open" : "lock"}
+                    name={password.length >= 6 ? "lock-check" : "lock"}
                     size={24}
                     color={
-                      password.length
+                      password.length >= 6
+                        ? theme.colors.primary
+                        : theme.colors.textSecondary
+                    }
+                  />
+                </View>
+                <View style={styles.textInputContainer}>
+                  <TextInput
+                    style={styles.textInput}
+                    placeholder="Enter password again"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    secureTextEntry
+                    textContentType="password"
+                    value={passwordAgain}
+                    onChangeText={(text) =>
+                      setRegisterData({ ...registerData, passwordAgain: text })
+                    }
+                  />
+                  <MaterialCommunityIcons
+                    style={styles.textInputIcon}
+                    name={
+                      passwordAgain.length >= 6 && passwordAgain === password
+                        ? "lock-check"
+                        : "lock"
+                    }
+                    size={24}
+                    color={
+                      passwordAgain.length >= 6 && passwordAgain === password
                         ? theme.colors.primary
                         : theme.colors.textSecondary
                     }
@@ -265,15 +292,37 @@ export default function Login({ navigation }) {
                 <View style={styles.loginButtonContainer}>
                   <TouchableOpacity
                     style={
-                      !(password.length && email.length)
+                      !(
+                        password.length >= 6 &&
+                        passwordAgain === password &&
+                        email.includes("@") &&
+                        email.includes(".")
+                      )
                         ? styles.buttonDisabled
                         : styles.button
                     }
-                    disabled={!(password.length && email.length)}
-                    onPress={onHandleLogin}
+                    // disabled={
+                    //   !(
+                    //     password.length >= 6 &&
+                    //     passwordAgain === password &&
+                    //     email.includes("@") &&
+                    //     email.includes(".")
+                    //   )
+                    // }
+                    onPress={() =>
+                      navigation.navigate("Register3", {
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email,
+                        password: password,
+                      })
+                    }
                   >
-                    <Text style={styles.buttonText}>Login</Text>
-                    {password.length && email.length ? (
+                    <Text style={styles.buttonText}>Next</Text>
+                    {password.length >= 6 &&
+                    passwordAgain === password &&
+                    email.includes("@") &&
+                    email.includes(".") ? (
                       <MaterialCommunityIcons
                         style={styles.textInputIcon}
                         name="arrow-right"
@@ -286,27 +335,7 @@ export default function Login({ navigation }) {
               </View>
 
               <View style={styles.bottomContainer}>
-                <View style={styles.registerContainer}>
-                  <View style={styles.registerTextContainer}>
-                    <TouchableOpacity disabled>
-                      <Text style={styles.registerText}>
-                        Don't have an account?
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate("Register1")}
-                    >
-                      <Text style={styles.registerTextButton}> Sign up!</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.bottomBubbleContainer}>
-                    <View style={styles.bigBubble} />
-                  </View>
-                  <View style={styles.bottomBubbleContainer}>
-                    <View style={styles.smallBubble} />
-                  </View>
-                </View>
+                <View style={styles.registerContainer} />
               </View>
             </View>
           </TouchableWithoutFeedback>

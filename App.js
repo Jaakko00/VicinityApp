@@ -27,7 +27,9 @@ import HomeView from "./views/home/Home";
 import LoginView from "./views/login/Login";
 import MessageView from "./views/message/Message";
 import NeighbourhoodView from "./views/neighbourhood/Neighbourhood";
-import RegisterView from "./views/register/Register";
+import RegisterNameView from "./views/register/RegisterName";
+import RegisterPasswordView from "./views/register/RegisterPassword";
+import RegisterLocationView from "./views/register/RegisterLocation";
 import UserView from "./views/user/User";
 
 const Tab = createBottomTabNavigator();
@@ -35,6 +37,7 @@ const Stack = createStackNavigator();
 
 export const AuthenticatedUserContext = createContext({});
 export const ThemeContext = createContext({});
+export const RegisterContext = createContext({});
 
 LogBox.ignoreLogs([
   "AsyncStorage has been extracted from react-native core",
@@ -72,7 +75,7 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
         component={NeighbourhoodView}
         options={{
           tabBarLabel: "Neighbourhood",
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size, focused }) => (
             <MaterialCommunityIcons
               name="home-group"
               color={color}
@@ -86,9 +89,9 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
         component={HomeView}
         options={{
           tabBarLabel: "Home",
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size, focused }) => (
             <MaterialCommunityIcons
-              name="home-outline"
+              name={!focused ? "home-outline" : "home"}
               color={color}
               size={size}
             />
@@ -100,11 +103,15 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
         component={MessageView}
         options={{
           tabBarLabel: "Social",
-          tabBarIcon: ({ color, size }) => {
+          tabBarIcon: ({ color, size, focused }) => {
             return (
               <View>
                 <MaterialCommunityIcons
-                  name="account-supervisor-circle-outline"
+                  name={
+                    !focused
+                      ? "account-supervisor-circle-outline"
+                      : "account-supervisor-circle"
+                  }
                   color={color}
                   size={size}
                 />
@@ -142,11 +149,25 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
 }
 
 function AuthenticationStack() {
+  const [registerData, setRegisterData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    passwordAgain: "",
+    street: "",
+    postcode: "",
+    city: "",
+  });
   return (
-    <Stack.Navigator screenOptions={{ headerShown: true }}>
-      <Stack.Screen name="Login" component={LoginView} />
-      <Stack.Screen name="Register" component={RegisterView} />
-    </Stack.Navigator>
+    <RegisterContext.Provider value={{ registerData, setRegisterData }}>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginView} />
+        <Stack.Screen name="Register1" component={RegisterNameView} />
+        <Stack.Screen name="Register2" component={RegisterPasswordView} />
+        <Stack.Screen name="Register3" component={RegisterLocationView} />
+      </Stack.Navigator>
+    </RegisterContext.Provider>
   );
 }
 

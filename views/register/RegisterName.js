@@ -1,5 +1,14 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  collection,
+  doc,
+  where,
+  query,
+  getDocs,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
 import React, { useState, useContext } from "react";
 import {
   StyleSheet,
@@ -7,27 +16,27 @@ import {
   View,
   Button,
   TextInput,
+  ScrollView,
+  SafeAreaView,
+  ImageBackground,
+  Platform,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
-  Platform,
-  ImageBackground,
-  TouchableOpacity,
   Image,
-  SafeAreaView,
+  TouchableOpacity,
 } from "react-native";
-import { ThemeContext } from "../../App";
 
-import { LinearGradient } from "expo-linear-gradient";
+import { auth, firestore } from "../../config/firebase";
+import RegisterButton from "./components/RegisterButton";
+import { ThemeContext, RegisterContext } from "../../App";
 
-import { auth } from "../../config/firebase";
-
-export default function Login({ navigation }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
-
+export default function RegisterName({ navigation }) {
   const { theme } = useContext(ThemeContext);
+
+  const { registerData, setRegisterData } = useContext(RegisterContext);
+  const { firstName, lastName, email, password } = registerData;
+
   const styles = {
     container: {
       flex: 1,
@@ -55,21 +64,19 @@ export default function Login({ navigation }) {
       height: "100%",
       resizeMode: "contain",
     },
+    headerText: {
+      fontSize: 18,
+
+      fontFamily: "Futura",
+    },
     formContainer: {
       flex: 1,
       padding: 20,
       backgroundColor: "white",
       zIndex: 10,
-      minHeight: "50%",
+      minHeight: "60%",
       maxHeight: "60%",
-      borderBottomLeftRadius: "50%",
-    },
-    infoTextContainer: {
-      margin: theme.size.margin,
-    },
-    infoText: {
-      fontFamily: "Futura",
-      fontSize: 18,
+      borderBottomRightRadius: "50%",
     },
     textInputContainer: {
       flexDirection: "row",
@@ -139,7 +146,7 @@ export default function Login({ navigation }) {
       alignItems: "center",
       justifyContent: "center",
       backgroundColor: theme.colors.primary,
-      borderTopRightRadius: 100,
+      borderTopLeftRadius: 100,
     },
     bottomBubbleContainer: {
       width: "90%",
@@ -179,22 +186,48 @@ export default function Login({ navigation }) {
     },
   };
 
-  const onHandleLogin = () => {
-    if (email !== "" && password !== "") {
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => console.log("Login success"))
-        .catch((err) => handleLoginError(err));
-    } else {
-      console.log("Please give email and password");
-    }
-  };
+  // const onHandleSignup = (email, password, passwordAgain) => {
+  //   if (email !== "" && password !== "") {
+  //     if (password === passwordAgain) {
+  //       createUserWithEmailAndPassword(auth, email, password)
+  //         .then((user) => createUser(user))
+  //         .catch((err) => console.log(`Login err: ${err}`));
+  //     } else {
+  //       console.log("Passwords are not same");
+  //     }
+  //   } else {
+  //     console.log("Please give email and password");
+  //   }
+  // };
 
-  const handleLoginError = (err) => {
-    setError(true);
-    setEmail("");
-    setPassword("");
-    console.log(err);
-  };
+  // const createUser = async (user) => {
+  //   console.log("Creating user for", user);
+  //   if (user) {
+  //     await setDoc(doc(firestore, "user", user.user.uid), {
+  //       email: user._tokenResponse.email,
+  //       uid: user.user.uid,
+  //       phone,
+  //       firstName,
+  //       lastName,
+  //       street1,
+  //       street2,
+  //       postal,
+  //       city,
+  //     });
+  //   }
+  // };
+
+  // const allowRegistration = Boolean(
+  //   email &&
+  //     phone &&
+  //     firstName &&
+  //     lastName &&
+  //     street1 &&
+  //     postal &&
+  //     city &&
+  //     password &&
+  //     password === passwordAgain
+  // );
 
   return (
     <>
@@ -209,32 +242,26 @@ export default function Login({ navigation }) {
                 <View style={styles.logoContainer}>
                   <Image
                     style={styles.logo}
-                    source={require("../../assets/Vicinity-text-transparent.png")}
+                    source={require("../../assets/letsGetStarted.png")}
                   />
                 </View>
-                {error && (
-                  <View style={styles.infoTextContainer}>
-                    <Text style={styles.infoText}>
-                      Invalid username or password
-                    </Text>
-                  </View>
-                )}
                 <View style={styles.textInputContainer}>
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Enter email"
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    textContentType="emailAddress"
-                    value={email}
-                    onChangeText={(text) => setEmail(text)}
+                    placeholder="What's your first name?"
+                    autoCapitalize="words"
+                    textContentType="givenName"
+                    value={firstName}
+                    onChangeText={(text) =>
+                      setRegisterData({ ...registerData, firstName: text })
+                    }
                   />
                   <MaterialCommunityIcons
                     style={styles.textInputIcon}
-                    name="account"
+                    name={firstName.length ? "account" : "account-question"}
                     size={24}
                     color={
-                      email.length
+                      firstName.length
                         ? theme.colors.primary
                         : theme.colors.textSecondary
                     }
@@ -243,20 +270,20 @@ export default function Login({ navigation }) {
                 <View style={styles.textInputContainer}>
                   <TextInput
                     style={styles.textInput}
-                    placeholder="Enter password"
-                    autoCapitalize="none"
-                    autoCorrect={false}
-                    secureTextEntry
-                    textContentType="password"
-                    value={password}
-                    onChangeText={(text) => setPassword(text)}
+                    placeholder="What about your last name?"
+                    autoCapitalize="words"
+                    textContentType="familyName"
+                    value={lastName}
+                    onChangeText={(text) =>
+                      setRegisterData({ ...registerData, lastName: text })
+                    }
                   />
                   <MaterialCommunityIcons
                     style={styles.textInputIcon}
-                    name={password.length ? "lock-open" : "lock"}
+                    name={lastName.length ? "account" : "account-question"}
                     size={24}
                     color={
-                      password.length
+                      lastName.length
                         ? theme.colors.primary
                         : theme.colors.textSecondary
                     }
@@ -265,15 +292,20 @@ export default function Login({ navigation }) {
                 <View style={styles.loginButtonContainer}>
                   <TouchableOpacity
                     style={
-                      !(password.length && email.length)
+                      !(firstName.length && lastName.length)
                         ? styles.buttonDisabled
                         : styles.button
                     }
-                    disabled={!(password.length && email.length)}
-                    onPress={onHandleLogin}
+                    // disabled={!(firstName.length && lastName.length)}
+                    onPress={() =>
+                      navigation.navigate("Register2", {
+                        firstName: firstName,
+                        lastName: lastName,
+                      })
+                    }
                   >
-                    <Text style={styles.buttonText}>Login</Text>
-                    {password.length && email.length ? (
+                    <Text style={styles.buttonText}>Next</Text>
+                    {firstName.length && lastName.length ? (
                       <MaterialCommunityIcons
                         style={styles.textInputIcon}
                         name="arrow-right"
@@ -286,27 +318,7 @@ export default function Login({ navigation }) {
               </View>
 
               <View style={styles.bottomContainer}>
-                <View style={styles.registerContainer}>
-                  <View style={styles.registerTextContainer}>
-                    <TouchableOpacity disabled>
-                      <Text style={styles.registerText}>
-                        Don't have an account?
-                      </Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate("Register1")}
-                    >
-                      <Text style={styles.registerTextButton}> Sign up!</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <View style={styles.bottomBubbleContainer}>
-                    <View style={styles.bigBubble} />
-                  </View>
-                  <View style={styles.bottomBubbleContainer}>
-                    <View style={styles.smallBubble} />
-                  </View>
-                </View>
+                <View style={styles.registerContainer} />
               </View>
             </View>
           </TouchableWithoutFeedback>
