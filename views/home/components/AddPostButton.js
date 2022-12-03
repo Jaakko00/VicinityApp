@@ -1,46 +1,11 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import {
-  collection,
-  doc,
-  where,
-  query,
-  getDocs,
-  getDoc,
-  updateDoc,
-  setDoc,
-  GeoPoint,
-  serverTimestamp
-} from "firebase/firestore";
-import {
-  getStorage,
-  ref,
-  listAll,
-  getDownloadURL,
-  uploadBytes,
-} from "firebase/storage";
+
 import * as React from "react";
 import { useEffect, useState, useContext } from "react";
-import {
-  Text,
-  View,
-  StyleSheet,
-  Image,
-  ScrollView,
-  Button,
-  Pressable,
-  TouchableOpacity,
-  Modal,
-  TextInput,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
-import uuid from "react-native-uuid";
-import { SafeAreaView } from "react-navigation";
+import { Text, View, TouchableOpacity } from "react-native";
 
 import { AuthenticatedUserContext } from "../../../App";
-import { auth, firestore } from "../../../config/firebase";
-import PostImagePicker from "./PostImagePicker";
-import SendPostButton from "./SendPostButton";
+import AddPostModal from "./AddPostModal";
 
 export default function AddPostButton(props) {
   const styles = {
@@ -88,77 +53,7 @@ export default function AddPostButton(props) {
   };
 
   const [modalVisible, setModalVisible] = useState(false);
-  const [postText, setPostText] = useState("");
-  const [postImage, setPostImage] = useState("");
-  const [loading, setLoading] = useState(false);
   const { user, setUser, userInfo } = useContext(AuthenticatedUserContext);
-
-  const storage = getStorage();
-
-  const handlePostSaved = async (pickerResult) => {
-    if (postImage) {
-      try {
-        setLoading(true);
-        if (!pickerResult.cancelled) {
-          const uploadUrl = await uploadPostImage(pickerResult.uri);
-          savePost(uploadUrl);
-        }
-      } catch (e) {
-        console.log(e);
-        alert("Upload failed, sorry :(");
-        setLoading(false);
-      }
-    } else {
-      setLoading(true);
-      savePost();
-    }
-  };
-  const uploadPostImage = async (uri) => {
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
-    });
-
-    const fileRef = ref(storage, "images/" + uuid.v4());
-    const result = await uploadBytes(fileRef, blob);
-
-    console.log("Uploaded image", result);
-    // We're done with the blob, close and release it
-    blob.close();
-
-    return await getDownloadURL(fileRef);
-  };
-
-  const savePost = async (url) => {
-    if (postText) {
-      await setDoc(doc(firestore, "post", uuid.v4()), {
-        text: postText,
-        image: url || null,
-        postedAt: Date.now(),
-        userRef: doc(firestore, "user", user.uid),
-        uid: user.uid,
-        location: userInfo.location,
-      });
-      setLoading(false);
-      onClose();
-      props.getPosts();
-    }
-  };
-
-  const onClose = () => {
-    setModalVisible(!modalVisible);
-    setPostImage("");
-    setPostText("");
-  };
 
   return (
     <View>
@@ -173,43 +68,10 @@ export default function AddPostButton(props) {
           </Text>
         </TouchableOpacity>
       </View>
-      <Modal
-        animationType="slide"
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-        presentationStyle="pageSheet"
-      >
-        <View>
-          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <View style={styles.modalView}>
-              <Pressable
-                style={styles.topBar}
-                onPress={() => setModalVisible(!modalVisible)}
-              />
-
-              <TextInput
-                style={styles.textInput}
-                onChangeText={setPostText}
-                value={postText}
-                placeholder="Please tell us whats on your mind! 😄"
-                multiline
-              />
-              <PostImagePicker
-                setPostImage={setPostImage}
-                postImage={postImage}
-              />
-              <SendPostButton
-                onClose={onClose}
-                onSave={() => handlePostSaved(postImage)}
-                postText={postText}
-                loading={loading}
-              />
-            </View>
-          </TouchableWithoutFeedback>
-        </View>
-      </Modal>
+      <AddPostModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
     </View>
   );
 }

@@ -98,6 +98,7 @@ export default function Login({ navigation }) {
 
     button: {
       width: "40%",
+
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
@@ -112,6 +113,7 @@ export default function Login({ navigation }) {
     },
     buttonDisabled: {
       width: "40%",
+
       opacity: 0.2,
       flexDirection: "row",
       justifyContent: "center",

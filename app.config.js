@@ -34,6 +34,14 @@ export default {
             "The app accesses your photos to let you share them with your friends.",
         },
       ],
+      [
+        "expo-camera",
+        {
+          /* Values passed to the plugin */
+          cameraPermission: "Allow Vicinity to access your camera",
+          microphonePermission: "Allow Vicinity to access your microphone",
+        },
+      ],
     ],
 
     web: {

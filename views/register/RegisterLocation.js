@@ -129,6 +129,7 @@ export default function RegisterLocation({ navigation, route }) {
 
     registerButton: {
       width: "40%",
+      
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
@@ -143,6 +144,7 @@ export default function RegisterLocation({ navigation, route }) {
     },
     registerButtonDisabled: {
       width: "40%",
+      
       opacity: 0.2,
       flexDirection: "row",
       justifyContent: "center",
