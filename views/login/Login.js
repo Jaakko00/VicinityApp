@@ -177,6 +177,13 @@ export default function Login({ navigation }) {
       fontFamily: "Futura",
       fontSize: 18,
     },
+    creditTextContainer: {},
+    creditText: {
+      color: theme.colors.text,
+      fontFamily: "Futura",
+      fontSize: 12,
+      textAlign: "center",
+    },
   };
 
   const onHandleLogin = () => {
@@ -307,6 +314,10 @@ export default function Login({ navigation }) {
                     <View style={styles.smallBubble} />
                   </View>
                 </View>
+              </View>
+
+              <View style={styles.creditTextContainer}>
+                <Text style={styles.creditText}>Jaakko Saranpää, 2022</Text>
               </View>
             </View>
           </TouchableWithoutFeedback>

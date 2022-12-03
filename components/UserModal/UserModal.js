@@ -27,26 +27,48 @@ import {
 } from "react-native";
 
 import { firestore } from "../../config/firebase";
-import { AuthenticatedUserContext } from "../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../App";
+
 import Avatar from "../Avatar";
 import FriendButtons from "./FriendButtons";
 
 export default function UserModal(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     modalView: {
       height: "100%",
+      backgroundColor: "white",
+    },
+    topView: {
+      height: "30%",
       backgroundColor: "#E40066",
+      paddingTop: 10,
+      alignItems: "center",
+      borderBottomLeftRadius: 10,
+      borderBottomRightRadius: 10,
+      justifyContent: "space-between",
+    },
+    topContainer: {
+      alignItems: "center",
+    },
+    nameTextContainer: {
+      backgroundColor: "white",
+      borderTopRightRadius: 10,
+      borderTopLeftRadius: 10,
+      padding: theme.size.paddingBig,
+    },
+    nameText: {
+      fontSize: 24,
+      color: "black",
+      fontFamily: "Futura",
+    },
+    bottomView: {
+      height: "70%",
+      backgroundColor: "white",
       padding: 10,
       alignItems: "center",
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
     },
+
     topBar: {
       backgroundColor: "#121212",
       width: "50%",
@@ -59,37 +81,7 @@ export default function UserModal(props) {
       minHeight: "50%",
       borderRadius: 10,
     },
-    card: {
-      backgroundColor: "#fff",
-      padding: 10,
-      margin: 10,
-      borderRadius: 10,
-      minWidth: "90%",
-      maxWidth: "90%",
 
-      shadowColor: "#171717",
-      shadowOffset: { width: -2, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 3,
-    },
-    cardHeader: {
-      flexDirection: "row",
-    },
-    cardHeaderText: {
-      margin: 5,
-      padding: 5,
-      borderLeftWidth: 1,
-      borderColor: "#E40066",
-    },
-
-    scrollView: {
-      maxHeight: 200,
-      marginTop: 10,
-      marginBottom: 10,
-      borderRadius: 10,
-      overflow: "hidden",
-      backgroundColor: "white",
-    },
     shadowProp: {
       padding: 7,
       shadowColor: "#171717",
@@ -206,51 +198,22 @@ export default function UserModal(props) {
       onRequestClose={() => props.onClose()}
       presentationStyle="pageSheet"
     >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
+      <View style={styles.modalView}>
+        <View style={styles.topView}>
           <Pressable
             style={styles.topBar}
             onPress={() => setModalVisible(!modalVisible)}
           />
-          <View style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Avatar
-                style={styles.shadowProp}
-                width={100}
-                image={props.image}
-              />
-
-              <View style={styles.cardHeaderText}>
-                <Text>
-                  {props.user.firstName} {props.user.lastName}
-                </Text>
-                <Text>Tampere</Text>
-                <Text>300m away</Text>
-                {friendStatus === "approved" && (
-                  <Text>
-                    Friend{" "}
-                    <MaterialCommunityIcons
-                      name="account-check"
-                      size={15}
-                      color="#E40066"
-                    />
-                  </Text>
-                )}
-              </View>
+          <View style={styles.topContainer}>
+            <Avatar style={styles.shadowProp} width={100} image={props.image} />
+            <View style={styles.nameTextContainer}>
+              <Text style={styles.nameText}>
+                {props.user.firstName} {props.user.lastName}
+              </Text>
             </View>
           </View>
-          <FriendButtons
-            disabled={user.uid === props.user.uid}
-            addFriend={addFriend}
-            friendStatus={friendStatus}
-            message={messageFriend}
-          />
-          <View style={styles.card}>
-            <Text>Email: {props.user.email}</Text>
-            <Text>Address: Näsilinnankatu 9, B 28</Text>
-            <Text>Phone: +358 44 3033610</Text>
-          </View>
         </View>
+        <View style={styles.bottomView}></View>
       </View>
     </Modal>
   );

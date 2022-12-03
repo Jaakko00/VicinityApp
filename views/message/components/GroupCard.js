@@ -33,7 +33,7 @@ import PreviewImage from "../../home/components/PreviewImage";
 export default function GroupCard(props) {
   const styles = {
     card: {
-      backgroundColor: "#fff",
+      
       padding: 10,
 
       minWidth: "100%",

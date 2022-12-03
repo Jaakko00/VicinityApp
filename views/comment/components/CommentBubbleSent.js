@@ -1,6 +1,18 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import {
+  collection,
+  doc,
+  where,
+  query,
+  getDocs,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  addDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import moment from "moment";
 import * as React from "react";
@@ -15,16 +27,15 @@ import {
 } from "react-native";
 
 import { AuthenticatedUserContext, ThemeContext } from "../../../App";
-import Avatar from "../../../components/Avatar";
-import UserAvatar from "../../../components/UserAvatar";
-import PreviewImage from "../../home/components/PreviewImage";
+import { firestore } from "../../../config/firebase";
 
-export default function TextBubbleReceived(props) {
+export default function CommentBubbleSent(props) {
+  const [color, setColor] = useState("");
   const { theme } = useContext(ThemeContext);
   const styles = {
     bubbleContainer: {
       flex: 1,
-      alignItems: "flex-start",
+      alignItems: "flex-end",
       justifyContent: "center",
       margin: 10,
       marginBottom: 8,
@@ -33,16 +44,15 @@ export default function TextBubbleReceived(props) {
     bubble: {
       position: "relative",
       backgroundColor: "#fff",
-      borderColor: "#E40066",
+      borderColor: "#000",
       borderWidth: 2,
       padding: 15,
-
-      borderRadius: 30,
-      borderTopLeftRadius: 0,
+      borderRadius: 10,
+      borderBottomRightRadius: 0,
       minWidth: "40%",
-      maxWidth: "70%",
+      maxWidth: "100%",
 
-      shadowColor: "#E40066",
+      shadowColor: "#171717",
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
@@ -76,11 +86,10 @@ export default function TextBubbleReceived(props) {
       fontFamily: "Futura",
       fontSize: 16,
     },
-    textDeleted: {
+    senderText: {
       fontFamily: "Futura",
       fontSize: 16,
-      color: "#7a7a7a",
-      fontStyle: "italic",
+      color: "#000",
     },
     textSecondary: {
       fontFamily: "Futura",
@@ -99,7 +108,7 @@ export default function TextBubbleReceived(props) {
     centeredView: {
       position: "absolute",
       zIndex: 99,
-      left: "30%",
+      left: "40%",
     },
     modalView: {
       margin: 20,
@@ -129,67 +138,34 @@ export default function TextBubbleReceived(props) {
     },
   };
 
-  const isDeleted = props.message.message === "Deleted";
+  const [sender, setSender] = useState();
+
+  const getSender = async () => {
+    const docRef = doc(firestore, "user", props.comment.uid);
+    const user = await getDoc(docRef);
+    setSender(user.data());
+  };
+
+  useEffect(() => {
+    getSender();
+  }, []);
 
   return (
     <View>
-      {props.showReactions === props.message.id && (
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <TouchableOpacity
-              style={props.message.reaction === "👍" ? styles.iconSelected : ""}
-              onPress={() => props.reactToMessage(props.message, "👍")}
-            >
-              <Text style={styles.icon}>👍</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={props.message.reaction === "😂" ? styles.iconSelected : ""}
-              onPress={() => props.reactToMessage(props.message, "😂")}
-            >
-              <Text style={styles.icon}>😂</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={props.message.reaction === "👏" ? styles.iconSelected : ""}
-              onPress={() => props.reactToMessage(props.message, "👏")}
-            >
-              <Text style={styles.icon}>👏</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={props.message.reaction === "😳" ? styles.iconSelected : ""}
-              onPress={() => props.reactToMessage(props.message, "😳")}
-            >
-              <Text style={styles.icon}>😳</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={props.message.reaction === "😢" ? styles.iconSelected : ""}
-              onPress={() => props.reactToMessage(props.message, "😢")}
-            >
-              <Text style={styles.icon}>😢</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
       <View style={styles.bubbleContainer}>
-        <TouchableOpacity
-          onLongPress={() => props.setShowReactions(props.message.id)}
-          disabled={isDeleted}
-        >
+        <Text style={styles.senderText}>
+          {sender && sender.firstName} {sender && sender.lastName}
+        </Text>
+        <TouchableOpacity >
           <View style={styles.bubble}>
             <View style={styles.cardHeader}>
               <View style={styles.bubbleText}>
-                <Text style={!isDeleted ? styles.text : styles.textDeleted}>
-                  {props.message.message}
-                </Text>
+                <Text style={styles.text}>{props.comment.message}</Text>
                 <Text style={styles.textSecondary}>
-                  {moment(props.message.sentAt).format("hh:mm")}
+                  {moment(props.comment.sentAt).fromNow()}
                 </Text>
               </View>
             </View>
-            {props.message.reaction && (
-              <View style={styles.reactedView}>
-                <Text style={styles.icon}>{props.message.reaction}</Text>
-              </View>
-            )}
           </View>
         </TouchableOpacity>
       </View>

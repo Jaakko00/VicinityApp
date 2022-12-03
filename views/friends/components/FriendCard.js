@@ -84,12 +84,15 @@ export default function FriendCard(props) {
   };
 
   const { user, setUser } = useContext(AuthenticatedUserContext);
-  const [modalVisible, setModalVisible] = useState(false);
 
   return (
     <View style={styles.card}>
       <TouchableOpacity
-        onPress={() => setModalVisible(true)}
+        onPress={() =>
+          props.navigation.navigate("UserProfile", {
+            userProfile: props.friend,
+          })
+        }
         activeOpacity={0.6}
         underlayColor="#DDDDDD"
       >
@@ -117,15 +120,7 @@ export default function FriendCard(props) {
           </View>
         </View>
       </TouchableOpacity>
-      <UserModal
-        onClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-        open={modalVisible}
-        user={props.friend}
-        image={props.friend.avatar}
-        navigation={props.navigation}
-      />
+      
     </View>
   );
 }

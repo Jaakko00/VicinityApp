@@ -9,6 +9,7 @@ import {
   getDoc,
   setDoc,
   GeoPoint,
+  serverTimestamp,
 } from "firebase/firestore";
 import React, { useState, useContext } from "react";
 import {
@@ -28,6 +29,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+
 
 import { auth, firestore } from "../../config/firebase";
 import RegisterButton from "./components/RegisterButton";
@@ -233,8 +235,19 @@ export default function RegisterLocation({ navigation, route }) {
         postcode,
         city,
         location: new GeoPoint(location.latitude, location.longitude),
+        createdAt: Date.now(),
       });
     }
+    setRegisterData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      passwordAgain: "",
+      street: "",
+      postcode: "",
+      city: "",
+    });
   };
 
   const handleRegisterError = (err) => {

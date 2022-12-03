@@ -1,29 +1,14 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import * as React from "react";
 import { useEffect, useState, useContext } from "react";
-import {
-  SafeAreaView,
-  Text,
-  View,
-  StyleSheet,
-  Image,
-  ScrollView,
-  Pressable,
-  TouchableOpacity,
-  ActivityIndicator,
-  Modal,
-} from "react-native";
+import { View } from "react-native";
 
 import { AuthenticatedUserContext } from "../App";
 import Avatar from "./Avatar";
-import UserModal from "./UserModal/UserModal";
 
 export default function UserAvatar(props) {
-  const { user, setUser } = useContext(AuthenticatedUserContext);
-  const [modalVisible, setModalVisible] = useState(false);
   const styles = {
     avatar: {},
     modalView: {
@@ -58,16 +43,21 @@ export default function UserAvatar(props) {
       <Avatar
         image={props.image}
         width={props.width}
-        onPress={() => setModalVisible(!modalVisible)}
-      />
-      <UserModal
-        onClose={() => {
-          setModalVisible(!modalVisible);
+        onPress={() => {
+          if (props.home) {
+            props.navigation.navigate("UserProfileHome", {
+              userProfile: props.user,
+              home: true,
+            });
+          } else {
+            props.navigation.navigate("UserProfile", {
+              userProfile: props.user,
+            });
+          }
+          if(props.callback) {
+            props.callback();
+          }
         }}
-        open={modalVisible}
-        user={props.user}
-        image={props.image}
-        navigation={props.navigation}
       />
     </View>
   );

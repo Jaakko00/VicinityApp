@@ -8,6 +8,8 @@ import {
   getDoc,
   updateDoc,
   setDoc,
+  GeoPoint,
+  serverTimestamp
 } from "firebase/firestore";
 import {
   getStorage,
@@ -89,7 +91,7 @@ export default function AddPostButton(props) {
   const [postText, setPostText] = useState("");
   const [postImage, setPostImage] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { user, setUser, userInfo } = useContext(AuthenticatedUserContext);
 
   const storage = getStorage();
 
@@ -143,6 +145,8 @@ export default function AddPostButton(props) {
         image: url || null,
         postedAt: Date.now(),
         userRef: doc(firestore, "user", user.uid),
+        uid: user.uid,
+        location: userInfo.location,
       });
       setLoading(false);
       onClose();

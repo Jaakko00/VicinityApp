@@ -60,7 +60,6 @@ export default function InputField(props) {
   const [newMessage, setNewMessage] = useState("");
   const [sound, setSound] = useState();
 
-  const [focused, setFocused] = useState(false)
 
   const [loading, setLoading] = useState(false);
   const { user, setUser } = useContext(AuthenticatedUserContext);
@@ -84,7 +83,7 @@ export default function InputField(props) {
 
   return (
     <View style={styles.inputContainer}>
-      <View style={focused ? styles.flexContainerFocus : styles.flexContainer}>
+      <View style={styles.flexContainer}>
         <TextInput
           style={styles.textInput}
           placeholder="New message"
@@ -92,8 +91,6 @@ export default function InputField(props) {
           onChangeText={(text) => setNewMessage(text)}
           multiline
           maxLength={120}
-          onFocus={() => setFocused(true)}
-          onBlur={() => setFocused(false)}
         />
         <TouchableOpacity
           style={styles.sendButton}

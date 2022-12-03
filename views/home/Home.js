@@ -9,10 +9,12 @@ import {
   getDocs,
   getDoc,
   onSnapshot,
+  updateDoc,
+  setDoc,
 } from "firebase/firestore";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   Text,
   View,
@@ -20,24 +22,32 @@ import {
   ScrollView,
   StyleSheet,
   RefreshControl,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-navigation";
 
-import AddPostButton from "./components/AddPostButton";
 import HomeHeader from "../../components/HomeHeader";
-import PostCard from "./components/PostCard";
 import { auth, firestore } from "../../config/firebase";
-
+import getDistance from "../../utils/getDistance";
 import UserView from "../user/User";
+import UserProfileView from "../user/UserProfile";
+import ChatView from "../chat/Chat";
+import HomeEmpty from "./components/HomeEmpty";
+import HomeFooter from "./components/HomeFooter";
+import PostCard from "./components/PostCard";
+import { AuthenticatedUserContext, ThemeContext } from "../../App";
 
 const Stack = createStackNavigator();
 
-export function HomeView({ navigation }) {
+export function HomeView({ navigation, route }) {
   const [files, setFiles] = useState([]);
   const storage = getStorage();
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [nearbyPosts, setNearbyPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const { user, userInfo } = useContext(AuthenticatedUserContext);
+  const { theme } = useContext(ThemeContext);
 
   // Create a reference under which you want to list
   const listRef = ref(storage, "images/");
@@ -47,10 +57,10 @@ export function HomeView({ navigation }) {
   const getPosts = async () => {
     setPosts([]);
     setLoading(true);
-
     const querySnapshot = await getDocs(collection(firestore, "post"));
     querySnapshot.forEach(async (post) => {
       const tempPost = post.data();
+
       tempPost.id = post.id;
       if (tempPost.userRef) {
         const userQuery = await getDoc(tempPost.userRef);
@@ -62,50 +72,75 @@ export function HomeView({ navigation }) {
     setLoading(false);
   };
 
-  useEffect(() => {
-    getPosts();
-  }, []);
-  useEffect(() => {}, [posts]);
+  const updatePost = async (post_id, params) => {
+    const postRef = doc(firestore, "post", post_id);
+    await updateDoc(postRef, params);
+  };
 
-  // useEffect(() => {
-  //   const tempList = [];
-  //   let itemsProcessed = 0;
-  //   listAll(listRef)
-  //     .then((res) => {
-  //       res.items
-  //         .forEach((itemRef) => {
-  //           getDownloadURL(ref(storage, itemRef._location.path_))
-  //             .then((url) => {
-  //               itemsProcessed++;
-  //               tempList.push(url);
-  //               if (itemsProcessed === res.items.length) {
-  //                 setFiles(tempList);
-  //               }
-  //             })
-  //             .catch((error) => {
-  //               console.log(error);
-  //             });
-  //         })
-  //         .then(() => console.log("Done"));
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, []);
+  useEffect(() => {
+    if (!posts.length) {
+      getPosts();
+    }
+  }, []);
+
+  useEffect(() => {
+    const tempNearbyPosts = [];
+    if (userInfo) {
+      posts.forEach((post, index) => {
+        if (post.location) {
+          const distance = getDistance(
+            userInfo.location.latitude,
+            userInfo.location.longitude,
+            post.location.latitude,
+            post.location.longitude
+          );
+          post = { ...post, distance };
+          if (distance <= 0.5) {
+            tempNearbyPosts.push(post);
+          }
+        }
+      });
+    }
+    setNearbyPosts(tempNearbyPosts);
+  }, [posts]);
 
   const styles = {
+    homeBackgroundContainer: {
+      position: "absolute",
+      bottom: 0,
+      opacity: 0.2,
+      height: "40%",
+      width: "100%",
+      transform: [{ scaleX: 2 }],
+      borderTopStartRadius: 280,
+      borderTopEndRadius: 180,
+      overflow: "hidden",
+      alignItems: "center",
+    },
+    homeBackground: {
+      flex: 1,
+      width: "100%",
+      transform: [{ scaleX: 0.5 }],
+      backgroundColor: theme.colors.primary,
+      alignItems: "center",
+      justifyContent: "flex-end",
+    },
     view: {
-      backgroundColor: "#f0f0f0",
       flex: 1,
       alignItems: "center",
       justifyContent: "flex-start",
+      marginTop: 10,
+    },
+    emptyView: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
     },
     text: {
       fontWeight: "bold",
       fontSize: 18,
       marginTop: 0,
     },
-    scrollView: {},
   };
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -114,29 +149,46 @@ export function HomeView({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
+      <View style={styles.homeBackgroundContainer}>
+        <View style={styles.homeBackground} />
+      </View>
       <HomeHeader navigation={navigation} getPosts={getPosts} />
-
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={{ flexGrow: 1 }}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      <FlatList
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+        data={nearbyPosts.sort(function (a, b) {
+          const c = new Date(a.postedAt);
+          const d = new Date(b.postedAt);
+          return d - c;
+        })}
+        renderItem={({ item }) => (
+          <View style={styles.view}>
+            <PostCard
+              key={item.id}
+              post={item}
+              navigation={navigation}
+              updatePost={updatePost}
+            />
+          </View>
+        )}
+        ListFooterComponent={
+          nearbyPosts.length ? (
+            <View style={styles.view}>
+              <HomeFooter />
+            </View>
+          ) : null
         }
-      >
-        <View style={styles.view}>
-          {posts
-            .sort(function (a, b) {
-              var c = new Date(a.postedAt);
-              var d = new Date(b.postedAt);
-              return d - c;
-            })
-            .map((post) => {
-              return (
-                <PostCard key={post.id} post={post} navigation={navigation} />
-              );
-            })}
-        </View>
-      </ScrollView>
+        ListEmptyComponent={
+          <View style={styles.emptyView}>
+            <HomeEmpty />
+          </View>
+        }
+        ListFooterComponentStyle={{ marginTop: 10 }}
+        keyExtractor={(item) => item.id}
+      />
     </View>
   );
 }
@@ -144,8 +196,10 @@ export function HomeView({ navigation }) {
 export default function MessageStack({ navigation, route }) {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Posts" component={HomeView} navigation={navigation} />
+      <Stack.Screen name="Posts" component={HomeView} />
       <Stack.Screen name="User" component={UserView} />
+      <Stack.Screen name="UserProfileHome" component={UserProfileView} />
+      <Stack.Screen name="ChatHome" component={ChatView} />
     </Stack.Navigator>
   );
 }

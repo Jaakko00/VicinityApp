@@ -3,7 +3,7 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   Text,
   View,
@@ -16,10 +16,12 @@ import { SafeAreaView } from "react-navigation";
 
 import Avatar from "./Avatar";
 import PreviewImage from "../views/home/components/PreviewImage";
+import { AuthenticatedUserContext } from "../App";
 
 import AddPostButton from "../views/home/components/AddPostButton";
 
 export default function HomeHeader(props) {
+  const { user, userInfo } = useContext(AuthenticatedUserContext);
   const styles = {
     header: {
       zIndex: 999,
@@ -56,7 +58,13 @@ export default function HomeHeader(props) {
         />
         <View style={styles.accountIcon}>
           <AddPostButton getPosts={props.getPosts} />
-          <TouchableOpacity onPress={() => props.navigation.navigate("User")}>
+          <TouchableOpacity
+            onPress={() =>
+              props.navigation.navigate("UserProfileHome", {
+                userProfile: userInfo,
+              })
+            }
+          >
             <Text>
               <MaterialCommunityIcons name="account" size={35} color="#000" />
             </Text>

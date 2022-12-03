@@ -39,6 +39,7 @@ import MessageHeader from "./components/MessageHeader";
 import { auth, firestore } from "../../config/firebase";
 import ChatView from "../chat/Chat";
 import GroupChatView from "../chat/GroupChat";
+import UserProfileView from "../user/UserProfile";
 import FriendsView from "../friends/Friends";
 import NewGroupModal from "./components/NewGroupModal";
 import MessageCard from "./components/MessageCard";
@@ -129,7 +130,6 @@ export function MessageView({ navigation, route }) {
       paddingLeft: 10,
       fontFamily: "Futura",
       fontSize: 18,
-      backgroundColor: "#fff",
     },
     headerIcon: {
       padding: 5,
@@ -210,10 +210,33 @@ export function MessageView({ navigation, route }) {
       fontSize: 18,
       fontFamily: "Futura",
     },
+    homeBackgroundContainer: {
+      position: "absolute",
+      bottom: 0,
+      opacity: 0.2,
+      height: "40%",
+      width: "100%",
+      transform: [{ scaleX: 2 }],
+      borderTopStartRadius: 180,
+      borderTopEndRadius: 280,
+      overflow: "hidden",
+      alignItems: "center",
+    },
+    homeBackground: {
+      flex: 1,
+      width: "100%",
+      transform: [{ scaleX: 0.5 }],
+      backgroundColor: theme.colors.secondary,
+      alignItems: "center",
+      justifyContent: "flex-end",
+    },
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <View style={styles.homeBackgroundContainer}>
+        <View style={styles.homeBackground} />
+      </View>
       <MessageHeader navigation={navigation} />
       <ScrollView>
         {/* <View style={styles.scrollViewHorizontal}>
@@ -238,7 +261,7 @@ export function MessageView({ navigation, route }) {
         </View> */}
         <View style={styles.messagesView}>
           <View style={styles.headerContainer}>
-            <Text style={styles.header}>Groups</Text>
+            <Text style={styles.header}>Your group</Text>
             <TouchableOpacity onPress={() => setGroupModalVisible(true)}>
               <MaterialCommunityIcons
                 style={styles.headerIcon}
@@ -295,6 +318,7 @@ export function MessageView({ navigation, route }) {
 export default function MessageStack({ navigation, route }) {
   return (
     <Stack.Navigator
+      initialRouteName="Messages"
       screenOptions={{
         headerShown: false,
         contentStyle: {
@@ -310,6 +334,7 @@ export default function MessageStack({ navigation, route }) {
       <Stack.Screen name="Chat" component={ChatView} />
       <Stack.Screen name="GroupChat" component={GroupChatView} />
       <Stack.Screen name="Friends" component={FriendsView} />
+      <Stack.Screen name="UserProfile" component={UserProfileView} />
     </Stack.Navigator>
   );
 }

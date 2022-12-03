@@ -2,8 +2,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { onAuthStateChanged } from "firebase/auth";
 import { Audio } from "expo-av";
+import { onAuthStateChanged } from "firebase/auth";
 import {
   collection,
   onSnapshot,
@@ -27,9 +27,9 @@ import HomeView from "./views/home/Home";
 import LoginView from "./views/login/Login";
 import MessageView from "./views/message/Message";
 import NeighbourhoodView from "./views/neighbourhood/Neighbourhood";
+import RegisterLocationView from "./views/register/RegisterLocation";
 import RegisterNameView from "./views/register/RegisterName";
 import RegisterPasswordView from "./views/register/RegisterPassword";
-import RegisterLocationView from "./views/register/RegisterLocation";
 import UserView from "./views/user/User";
 
 const Tab = createBottomTabNavigator();
@@ -70,7 +70,7 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
         },
       }}
     >
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Neighbourhood"
         component={NeighbourhoodView}
         options={{
@@ -83,7 +83,7 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
             />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="Home"
         component={HomeView}
@@ -179,6 +179,7 @@ const AuthenticatedUserProvider = ({ children }) => {
   const [outpendingFriends, setOutpendingFriends] = useState([]);
   const [approvedFriends, setApprovedFriends] = useState([]);
   const [newMessages, setNewMessages] = useState(false);
+  const [playSound, setPlaySound] = useState(false);
 
   useEffect(() => {
     if (user?.uid) {
@@ -202,6 +203,13 @@ const AuthenticatedUserProvider = ({ children }) => {
 
     await sound.playAsync();
   };
+  useEffect(() => {
+    if (playSound) {
+      console.log("Playing sound");
+      playMessageSound();
+      setPlaySound(false);
+    }
+  }, [playSound]);
 
   const getMostRecentChatMessages = async () => {
     approvedFriends.forEach(async (friend, index) => {
@@ -215,12 +223,12 @@ const AuthenticatedUserProvider = ({ children }) => {
       const unSub = onSnapshot(q, (querySnapshot) => {
         querySnapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
-            playMessageSound();
+            setPlaySound(true);
+            setNewMessages(true);
+          } else if (change.type === "modified") {
+          } else if (change.type === "removed") {
+            setNewMessages(false);
           }
-        });
-        setNewMessages(false);
-        querySnapshot.forEach((doc) => {
-          setNewMessages(true);
         });
       });
       return unSub;

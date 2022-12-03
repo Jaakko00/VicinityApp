@@ -12,19 +12,23 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
+import uuid from "react-native-uuid";
 
-import { AuthenticatedUserContext } from "../../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 import Avatar from "../../../components/Avatar";
 import UserAvatar from "../../../components/UserAvatar";
+import CommentModal from "../../comment/CommentModal";
 import PreviewImage from "./PreviewImage";
 
 export default function PostCard(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     card: {
       backgroundColor: "#fff",
       padding: 10,
-      marginTop: 10,
+
       borderRadius: 10,
       minWidth: "95%",
       maxWidth: "95%",
@@ -86,50 +90,242 @@ export default function PostCard(props) {
       fontFamily: "Futura",
       fontSize: 16,
     },
+    cardActionRow: {
+      flexDirection: "row",
+      justifyContent: "flex-end",
+      alignItems: "center",
+      marginTop: 10,
+    },
+    cardActionButton: {
+      margin: 10,
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    cardActionNumber: {
+      fontFamily: "Futura",
+      width: 30,
+      textAlign: "center",
+    },
+    commentInfoContainer: {
+      flexDirection: "row",
+      width: "90%",
+    },
   };
 
-  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { user, setUser, approvedFriends } = useContext(
+    AuthenticatedUserContext
+  );
   const { userInfo, setUserInfo } = useContext(AuthenticatedUserContext);
+  const [commentModalOpen, setCommentModalOpen] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [likedBy, setLikedBy] = useState([]);
+  const [dislikedBy, setDislikedBy] = useState([]);
+  const [friendCommented, setFriendCommented] = useState([]);
+
+  useEffect(() => {
+    if (props.post.likedBy) {
+      setLikedBy(props.post.likedBy);
+    }
+    if (props.post.dislikedBy) {
+      setDislikedBy(props.post.dislikedBy);
+    }
+    if (props.post.comments) {
+      setFriendCommented([]);
+      setComments(props.post.comments);
+      const tempArray = approvedFriends.filter((friend) => {
+        return props.post.comments.some((comment) => {
+          return comment.uid === friend.uid;
+        });
+      });
+      setFriendCommented(tempArray);
+    }
+  }, [props.post]);
+
+  const isLiked = likedBy.includes(user.uid);
+  const isDisliked = dislikedBy.includes(user.uid);
+
+  const handleComment = (message) => {
+    const newComment = {
+      message,
+      uid: user.uid,
+      sentAt: Date.now(),
+      id: uuid.v4(),
+    };
+    setComments([...comments, newComment]);
+    props.updatePost(props.post.id, {
+      comments: [...comments, newComment],
+    });
+  };
+
+  /* 
+    handles like button
+    if user has already liked the post, unlike it in state and in firestore
+  */
+  const handleLike = () => {
+    if (isLiked) {
+      setLikedBy(likedBy.filter((uid) => uid !== user.uid));
+      // update post in firebase
+      props.updatePost(props.post.id, {
+        likedBy: likedBy.filter((uid) => uid !== user.uid),
+      });
+    } else {
+      setLikedBy([...likedBy, user.uid]);
+      if (isDisliked) {
+        setDislikedBy(dislikedBy.filter((uid) => uid !== user.uid));
+        props.updatePost(props.post.id, {
+          likedBy: [...likedBy, user.uid],
+          dislikedBy: dislikedBy.filter((uid) => uid !== user.uid),
+        });
+      } else {
+        props.updatePost(props.post.id, {
+          likedBy: [...likedBy, user.uid],
+        });
+      }
+    }
+  };
+
+  /*
+    handles dislike button
+    if user has already disliked the post, undislike it in state and in firestore
+  */
+  const handleDislike = () => {
+    if (isDisliked) {
+      setDislikedBy(dislikedBy.filter((uid) => uid !== user.uid));
+      props.updatePost(props.post.id, {
+        dislikedBy: dislikedBy.filter((uid) => uid !== user.uid),
+      });
+    } else {
+      setDislikedBy([...dislikedBy, user.uid]);
+      if (isLiked) {
+        setLikedBy(likedBy.filter((uid) => uid !== user.uid));
+        props.updatePost(props.post.id, {
+          dislikedBy: [...dislikedBy, user.uid],
+          likedBy: likedBy.filter((uid) => uid !== user.uid),
+        });
+      } else {
+        props.updatePost(props.post.id, {
+          dislikedBy: [...dislikedBy, user.uid],
+        });
+      }
+    }
+  };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.cardHeader}>
-        <UserAvatar
-          style={styles.shadowProp}
-          width={55}
-          image={props.post.userData.avatar}
-          user={props.post.userData}
-          navigation={props.navigation}
-        />
-
-        <View
-          style={
-            props.post.userData.uid !== user.uid
-              ? styles.cardHeaderText
-              : styles.cardHeaderTextOwn
-          }
-        >
-          <View style={styles.cardFirstRow}>
-            <Text style={styles.textHeader}>
-              {props.post.userData.uid !== user.uid
-                ? `${props.post.userData.firstName} ${props.post.userData.lastName}`
-                : "You"}
-            </Text>
-            <Text style={styles.text}>Tampere, Amuri</Text>
-          </View>
+    <>
+      {friendCommented.length ? (
+        <View style={styles.commentInfoContainer}>
           <Text style={styles.text}>
-            {moment(props.post.postedAt).fromNow()}
+            {friendCommented[0].firstName}
+            {friendCommented.length === 2
+              ? ` + ${friendCommented.length - 1} friend`
+              : friendCommented.length > 2
+              ? ` + ${friendCommented.length - 1} friends`
+              : null}{" "}
+            commented
           </Text>
+          <MaterialCommunityIcons
+            name="arrow-down-right-bold"
+            size={18}
+            color={theme.colors.textSecondary}
+          />
         </View>
+      ) : null}
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <UserAvatar
+            style={styles.shadowProp}
+            width={55}
+            image={props.post.userData.avatar}
+            user={props.post.userData}
+            navigation={props.navigation}
+            home
+          />
+
+          <View
+            style={
+              props.post.userData.uid !== user.uid
+                ? styles.cardHeaderText
+                : styles.cardHeaderTextOwn
+            }
+          >
+            <View style={styles.cardFirstRow}>
+              <Text style={styles.textHeader}>
+                {props.post.userData.uid !== user.uid
+                  ? `${props.post.userData.firstName} ${props.post.userData.lastName}`
+                  : "You"}
+              </Text>
+              <Text style={styles.text}>
+                {parseInt(props.post.distance * 1000, 10)}m
+              </Text>
+            </View>
+            <Text style={styles.text}>
+              {moment(props.post.postedAt).fromNow()}
+            </Text>
+          </View>
+        </View>
+        <View style={styles.scrollView}>
+          <ScrollView>
+            <Text style={styles.textPrimary}>{props.post.text}</Text>
+          </ScrollView>
+        </View>
+        {props.post.image && (
+          <PreviewImage width="100%" height={80} image={props.post.image} />
+        )}
+
+        <View style={styles.cardActionRow}>
+          <TouchableOpacity
+            style={styles.cardActionButton}
+            onPress={() => setCommentModalOpen(true)}
+          >
+            <Text style={styles.cardActionNumber}>
+              {comments.length > 99 ? "99+" : comments.length}
+            </Text>
+            <MaterialCommunityIcons
+              name="comment"
+              size={24}
+              color={theme.colors.textSecondary}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cardActionButton}
+            onPress={() => handleLike()}
+          >
+            <Text style={styles.cardActionNumber}>
+              {likedBy.length > 99 ? "99+" : likedBy.length}
+            </Text>
+            <MaterialCommunityIcons
+              name="thumb-up"
+              size={24}
+              color={
+                isLiked ? theme.colors.primary : theme.colors.textSecondary
+              }
+            />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cardActionButton}
+            onPress={() => handleDislike()}
+          >
+            <Text style={styles.cardActionNumber}>
+              {dislikedBy.length > 99 ? "99+" : dislikedBy.length}
+            </Text>
+            <MaterialCommunityIcons
+              name="thumb-down"
+              size={24}
+              color={isDisliked ? "black" : theme.colors.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
+        {commentModalOpen && (
+          <CommentModal
+            post={props.post}
+            comments={comments}
+            handleComment={handleComment}
+            commentModalOpen={commentModalOpen}
+            setCommentModalOpen={setCommentModalOpen}
+            navigation={props.navigation}
+          />
+        )}
       </View>
-      <View style={styles.scrollView}>
-        <ScrollView>
-          <Text style={styles.textPrimary}>{props.post.text}</Text>
-        </ScrollView>
-      </View>
-      {props.post.image && (
-        <PreviewImage width="100%" height={80} image={props.post.image} />
-      )}
-    </View>
+    </>
   );
 }
