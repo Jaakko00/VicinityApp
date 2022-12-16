@@ -71,6 +71,7 @@ export default function AddPostButton(props) {
       <AddPostModal
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
+        getPosts={props.getPosts}
       />
     </View>
   );

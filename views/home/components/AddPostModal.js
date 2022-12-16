@@ -38,6 +38,7 @@ import {
 } from "react-native";
 import uuid from "react-native-uuid";
 import { SafeAreaView } from "react-navigation";
+import { Geohash, geohashForLocation, Geopoint } from "geofire-common";
 
 import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 import { auth, firestore } from "../../../config/firebase";
@@ -45,12 +46,18 @@ import PostImagePicker from "./PostImagePicker";
 import SendPostButton from "./SendPostButton";
 import SimpleHeader from "../../../components/SimpleHeader";
 import CameraModal from "./CameraModal";
+import PreviewImage from "./PreviewImage";
 
 export default function AddPostModal(props) {
   const { theme } = useContext(ThemeContext);
+  const [postText, setPostText] = useState("");
+  const [postImage, setPostImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const { user, setUser, userInfo } = useContext(AuthenticatedUserContext);
   const styles = {
     textInputContainer: {
-      height: "50%",
+      height: postImage ? "50%" : "70%",
       padding: 10,
       borderRadius: 10,
       shadowColor: "#171717",
@@ -123,24 +130,20 @@ export default function AddPostModal(props) {
       fontFamily: "Futura",
       fontSize: 18,
     },
+    previewImageContainer: {
+      margin: 10,
+    },
   };
-
-  const [postText, setPostText] = useState("");
-  const [postImage, setPostImage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [cameraOpen, setCameraOpen] = useState(false);
-  const { user, setUser, userInfo } = useContext(AuthenticatedUserContext);
 
   const storage = getStorage();
 
-  const handlePostSaved = async (pickerResult) => {
+  const handlePostSaved = async () => {
     if (postImage) {
       try {
         setLoading(true);
-        if (!pickerResult.cancelled) {
-          const uploadUrl = await uploadPostImage(pickerResult.uri);
-          savePost(uploadUrl);
-        }
+
+        const uploadUrl = await uploadPostImage(postImage.uri);
+        savePost(uploadUrl);
       } catch (e) {
         console.log(e);
         alert("Upload failed, sorry :(");
@@ -151,33 +154,27 @@ export default function AddPostModal(props) {
       savePost();
     }
   };
+
   const uploadPostImage = async (uri) => {
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
-    });
+    const response = await fetch(uri);
+    const blob = await response.blob();
 
     const fileRef = ref(storage, "images/" + uuid.v4());
     const result = await uploadBytes(fileRef, blob);
 
     console.log("Uploaded image", result);
     // We're done with the blob, close and release it
-    blob.close();
 
     return await getDownloadURL(fileRef);
   };
 
   const savePost = async (url) => {
     if (postText) {
+      const hash = geohashForLocation([
+        userInfo.location.latitude,
+        userInfo.location.longitude,
+      ]);
+      console.log("hash", hash);
       await setDoc(doc(firestore, "post", uuid.v4()), {
         text: postText,
         image: url || null,
@@ -185,6 +182,7 @@ export default function AddPostModal(props) {
         userRef: doc(firestore, "user", user.uid),
         uid: user.uid,
         location: userInfo.location,
+        hash: hash,
       });
       setLoading(false);
       onClose();
@@ -194,7 +192,7 @@ export default function AddPostModal(props) {
 
   const onClose = () => {
     props.setModalVisible(!props.modalVisible);
-    setPostImage("");
+    setPostImage(null);
     setPostText("");
   };
 
@@ -207,7 +205,7 @@ export default function AddPostModal(props) {
       }}
       presentationStyle="overFullScreen"
     >
-      <SimpleHeader setModal={props.setModalVisible} title="New post" />
+      <SimpleHeader onClose={onClose} title="New post" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flexGrow: 1 }}
@@ -219,10 +217,16 @@ export default function AddPostModal(props) {
               placeholder="What's on your mind?"
               multiline
               value={postText}
-              onChange={(text) => setPostText(text)}
+              onChangeText={(text) => setPostText(text)}
               style={styles.textInput}
+              autoFocus
             />
           </View>
+          {postImage && (
+            <View style={styles.previewImageContainer}>
+              <PreviewImage width="100%" height={80} image={postImage} />
+            </View>
+          )}
           <View style={styles.buttonContainers}>
             <View style={styles.extraButtonContainer}>
               <TouchableOpacity
@@ -239,6 +243,7 @@ export default function AddPostModal(props) {
             <TouchableOpacity
               style={!postText.length ? styles.buttonDisabled : styles.button}
               disabled={!postText.length}
+              onPress={() => handlePostSaved()}
             >
               <Text style={styles.buttonText}>Post</Text>
             </TouchableOpacity>
@@ -246,7 +251,11 @@ export default function AddPostModal(props) {
         </SafeAreaView>
       </KeyboardAvoidingView>
       {cameraOpen && (
-        <CameraModal cameraOpen={cameraOpen} setCameraOpen={setCameraOpen} />
+        <CameraModal
+          cameraOpen={cameraOpen}
+          setCameraOpen={setCameraOpen}
+          setPostImage={setPostImage}
+        />
       )}
     </Modal>
   );

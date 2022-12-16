@@ -12,6 +12,8 @@ import {
   Pressable,
   TouchableOpacity,
   Modal,
+  ImageBackground,
+  TouchableWithoutFeedback,
 } from "react-native";
 
 export default function PreviewImage(props) {
@@ -26,18 +28,18 @@ export default function PreviewImage(props) {
     image: {
       width: props.width,
       height: props.height,
+      justifyContent: "center",
+      alignItems: "center",
     },
     overlay: {
-      ...StyleSheet.absoluteFillObject,
+      flex: 1,
+      width: "100%",
       backgroundColor: "rgba(0,0,0,0.4)",
+      justifyContent: "center",
+      alignItems: "center",
     },
     icon: {
       zIndex: 9999,
-      position: "absolute",
-
-      bottom: Number(props.height) / 2 - 25,
-
-      left: Number(viewWidth) / 2 - 25 || "50%",
     },
     modalView: {
       height: "100%",
@@ -65,6 +67,10 @@ export default function PreviewImage(props) {
       minHeight: "50%",
       borderRadius: 10,
     },
+    cameraButtons: {
+      flex: 1,
+      justifyContent: "flex-end",
+    },
   };
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -76,43 +82,41 @@ export default function PreviewImage(props) {
         underlayColor="#DDDDDD"
         onPress={() => setModalVisible(true)}
       >
-        <View
-          onLayout={(event) => {
-            setViewWidth(event.nativeEvent.layout.width);
-          }}
-        >
-          <Image
+        <View>
+          <ImageBackground
             style={styles.image}
-            source={{ uri: props.image }}
+            source={props.image}
             blurRadius={5}
-          />
-          <View style={styles.overlay} />
+          >
+            <View style={styles.overlay}>
+              <MaterialCommunityIcons
+                name="image-area"
+                size={50}
+                color="white"
+                style={styles.icon}
+              />
+            </View>
+          </ImageBackground>
         </View>
-        <MaterialCommunityIcons
-          name="image-area"
-          size={50}
-          color="white"
-          style={styles.icon}
-        />
       </TouchableOpacity>
       <Modal
-        animationType="slide"
+        animationType="none"
         visible={modalVisible}
         onRequestClose={() => {
-          setModalVisible(!modalVisible);
+          setModalVisible(false);
         }}
-        presentationStyle="pageSheet"
+        presentationStyle="overFullScreen"
+        style={{ backgroundColor: "black" }}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <Pressable
-              style={styles.topBar}
-              onPress={() => setModalVisible(!modalVisible)}
-            />
-
-            <Image style={styles.modalImage} source={{ uri: props.image }} />
-          </View>
-        </View>
+        <TouchableWithoutFeedback
+          onPress={() => setModalVisible(false)}
+          style={{ backgroundColor: "black" }}
+        >
+          <ImageBackground
+            source={props.image}
+            style={{ flex: 1, backgroundColor: "black" }}
+          />
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );

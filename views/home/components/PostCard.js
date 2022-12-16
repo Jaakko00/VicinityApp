@@ -13,8 +13,11 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
+  TouchableWithoutFeedback,
+  Alert
 } from "react-native";
 import uuid from "react-native-uuid";
+
 
 import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 import Avatar from "../../../components/Avatar";
@@ -24,6 +27,7 @@ import PreviewImage from "./PreviewImage";
 
 export default function PostCard(props) {
   const { theme } = useContext(ThemeContext);
+
   const styles = {
     card: {
       backgroundColor: "#fff",
@@ -81,6 +85,10 @@ export default function PostCard(props) {
       fontFamily: "Futura",
       color: "#7a7a7a",
     },
+    textDelete: {
+      fontFamily: "Futura",
+      color: "red",
+    },
     textPrimary: {
       fontFamily: "Futura",
       backgroundColor: "#fff",
@@ -121,6 +129,8 @@ export default function PostCard(props) {
   const [likedBy, setLikedBy] = useState([]);
   const [dislikedBy, setDislikedBy] = useState([]);
   const [friendCommented, setFriendCommented] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isDisliked, setIsDisliked] = useState(false);
 
   useEffect(() => {
     if (props.post.likedBy) {
@@ -141,8 +151,10 @@ export default function PostCard(props) {
     }
   }, [props.post]);
 
-  const isLiked = likedBy.includes(user.uid);
-  const isDisliked = dislikedBy.includes(user.uid);
+  useEffect(() => {
+    setIsLiked(likedBy.includes(user.uid));
+    setIsDisliked(dislikedBy.includes(user.uid));
+  }, [likedBy, dislikedBy]);
 
   const handleComment = (message) => {
     const newComment = {
@@ -210,6 +222,27 @@ export default function PostCard(props) {
     }
   };
 
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete post",
+      "Are you sure?",
+      [
+        {
+          text: "Delete",
+          onPress: () => props.deletePost(props.post.id),
+          style: "destructive",
+        },
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );  
+
+  };
+
   return (
     <>
       {friendCommented.length ? (
@@ -254,9 +287,15 @@ export default function PostCard(props) {
                   ? `${props.post.userData.firstName} ${props.post.userData.lastName}`
                   : "You"}
               </Text>
-              <Text style={styles.text}>
-                {parseInt(props.post.distance * 1000, 10)}m
-              </Text>
+              {props.post.userData.uid !== user.uid ? (
+                <Text style={styles.text}>
+                  {parseInt(props.post.distance * 1000, 10)}m
+                </Text>
+              ) : (
+                <TouchableOpacity onPress={handleDelete}>
+                  <Text style={styles.textDelete}>Delete</Text>
+                </TouchableOpacity>
+              )}
             </View>
             <Text style={styles.text}>
               {moment(props.post.postedAt).fromNow()}
@@ -269,51 +308,53 @@ export default function PostCard(props) {
           </ScrollView>
         </View>
         {props.post.image && (
-          <PreviewImage width="100%" height={80} image={props.post.image} />
+          <PreviewImage
+            width="100%"
+            height={80}
+            image={{ uri: props.post.image }}
+          />
         )}
 
         <View style={styles.cardActionRow}>
-          <TouchableOpacity
-            style={styles.cardActionButton}
-            onPress={() => setCommentModalOpen(true)}
-          >
-            <Text style={styles.cardActionNumber}>
-              {comments.length > 99 ? "99+" : comments.length}
-            </Text>
-            <MaterialCommunityIcons
-              name="comment"
-              size={24}
-              color={theme.colors.textSecondary}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.cardActionButton}
-            onPress={() => handleLike()}
-          >
-            <Text style={styles.cardActionNumber}>
-              {likedBy.length > 99 ? "99+" : likedBy.length}
-            </Text>
-            <MaterialCommunityIcons
-              name="thumb-up"
-              size={24}
-              color={
-                isLiked ? theme.colors.primary : theme.colors.textSecondary
-              }
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.cardActionButton}
-            onPress={() => handleDislike()}
-          >
-            <Text style={styles.cardActionNumber}>
-              {dislikedBy.length > 99 ? "99+" : dislikedBy.length}
-            </Text>
-            <MaterialCommunityIcons
-              name="thumb-down"
-              size={24}
-              color={isDisliked ? "black" : theme.colors.textSecondary}
-            />
-          </TouchableOpacity>
+          <TouchableWithoutFeedback onPress={() => setCommentModalOpen(true)}>
+            <View style={styles.cardActionButton}>
+              <Text style={styles.cardActionNumber}>
+                {comments.length > 99 ? "99+" : comments.length}
+              </Text>
+              <MaterialCommunityIcons
+                name="comment"
+                size={24}
+                color={theme.colors.textSecondary}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+
+          <TouchableWithoutFeedback onPress={() => handleLike()}>
+            <View style={styles.cardActionButton}>
+              <Text style={styles.cardActionNumber}>
+                {likedBy.length > 99 ? "99+" : likedBy.length}
+              </Text>
+              <MaterialCommunityIcons
+                name="thumb-up"
+                size={24}
+                color={
+                  isLiked ? theme.colors.primary : theme.colors.textSecondary
+                }
+              />
+            </View>
+          </TouchableWithoutFeedback>
+          <TouchableWithoutFeedback onPress={() => handleDislike()}>
+            <View style={styles.cardActionButton}>
+              <Text style={styles.cardActionNumber}>
+                {dislikedBy.length > 99 ? "99+" : dislikedBy.length}
+              </Text>
+              <MaterialCommunityIcons
+                name="thumb-down"
+                size={24}
+                color={isDisliked ? "black" : theme.colors.textSecondary}
+              />
+            </View>
+          </TouchableWithoutFeedback>
         </View>
         {commentModalOpen && (
           <CommentModal

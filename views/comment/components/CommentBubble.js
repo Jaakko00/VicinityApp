@@ -179,7 +179,7 @@ export default function CommentBubble(props) {
               user={sender}
               navigation={props.navigation}
               home
-              callback={() => props.setCommentModalOpen(false)}
+              function={() => props.setCommentModalOpen(false)}
             />
           </View>
 

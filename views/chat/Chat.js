@@ -50,6 +50,7 @@ export default function ChatView(props, { route, navigation }) {
   const { user, setUser } = useContext(AuthenticatedUserContext);
   const [showReactions, setShowReactions] = useState("");
   const [showDelete, setShowDelete] = useState("");
+  const [unsubscribe, setUnsubscribe] = useState();
 
   const getMessages = async () => {
     const friendQuery1 = query(
@@ -101,8 +102,8 @@ export default function ChatView(props, { route, navigation }) {
         }
       );
     });
-
-    return () => unSub();
+    console.log("setting unsubscribe", unSub);
+    setUnsubscribe(() => () => unSub());
   };
 
   const sendNewMessage = async (newMessage) => {
@@ -214,6 +215,14 @@ export default function ChatView(props, { route, navigation }) {
       getMessages();
     }
   }, []);
+  useEffect(() => {
+    return () => {
+      if (unsubscribe) {
+        console.log("Actually Unsubscribing");
+        unsubscribe();
+      }
+    };
+  }, [unsubscribe]);
 
   useEffect(() => {
     if (stateFriend) {

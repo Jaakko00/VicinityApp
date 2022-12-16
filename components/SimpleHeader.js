@@ -76,7 +76,7 @@ export default function SimpleHeader(props) {
     <SafeAreaView style={styles.header}>
       <View style={styles.card}>
         <View style={styles.cardHeader}>
-          <TouchableOpacity onPress={() => props.setModal(false)}>
+          <TouchableOpacity onPress={() => props.onClose()}>
             <Text>
               <MaterialCommunityIcons
                 name="close"

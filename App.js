@@ -180,6 +180,7 @@ const AuthenticatedUserProvider = ({ children }) => {
   const [approvedFriends, setApprovedFriends] = useState([]);
   const [newMessages, setNewMessages] = useState(false);
   const [playSound, setPlaySound] = useState(false);
+  const [unSubscribes, setUnSubscribes] = useState([]);
 
   useEffect(() => {
     if (user?.uid) {
@@ -231,7 +232,9 @@ const AuthenticatedUserProvider = ({ children }) => {
           }
         });
       });
-      return unSub;
+      if (!unSubscribes.includes(unSub)) {
+        setUnSubscribes((unSubscribes) => [...unSubscribes, unSub]);
+      }
     });
   };
 
@@ -357,6 +360,12 @@ const AuthenticatedUserProvider = ({ children }) => {
         }
       });
     });
+    if (unSub1 && !unSubscribes.includes(unSub1)) {
+      setUnSubscribes((unSubscribes) => [...unSubscribes, unSub1]);
+    }
+    if (unSub2 && !unSubscribes.includes(unSub2)) {
+      setUnSubscribes((unSubscribes) => [...unSubscribes, unSub2]);
+    }
   };
 
   return (
@@ -370,6 +379,8 @@ const AuthenticatedUserProvider = ({ children }) => {
         outpendingFriends,
         approvedFriends,
         newMessages,
+        unSubscribes,
+        setUnSubscribes,
       }}
     >
       {children}

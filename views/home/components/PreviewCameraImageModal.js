@@ -24,8 +24,6 @@ import {
 
 import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 
-
-
 export default function PreviewCameraImageModal(props) {
   const { theme } = useContext(ThemeContext);
 
@@ -62,12 +60,24 @@ export default function PreviewCameraImageModal(props) {
     },
   };
 
+  const handleClosePreview = () => {
+    props.setCameraPreviewOpen(false);
+    props.setImage(null);
+  };
+
+  const handleSelectImage = () => {
+    props.setPostImage(props.image);
+    props.setImage(null);
+    props.setCameraPreviewOpen(false);
+    props.setCameraOpen(false);
+  };
+
   return (
     <Modal
       animationType="fade"
       visible={props.cameraPreviewOpen}
       onRequestClose={() => {
-        props.setCameraPreviewOpen(false);
+        handleClosePreview();
       }}
       presentationStyle="overFullScreen"
     >
@@ -80,12 +90,15 @@ export default function PreviewCameraImageModal(props) {
             <View style={styles.bottomCameraButtons}>
               <TouchableOpacity
                 style={styles.closeButton}
-                onPress={() => props.setCameraPreviewOpen(false)}
+                onPress={() => handleClosePreview()}
               >
                 <MaterialCommunityIcons name="close" size={40} color="white" />
               </TouchableOpacity>
               <TouchableOpacity style={styles.pictureButton} disabled />
-              <TouchableOpacity style={styles.flipButton}>
+              <TouchableOpacity
+                style={styles.flipButton}
+                onPress={() => handleSelectImage()}
+              >
                 <MaterialCommunityIcons name="check" size={40} color="white" />
               </TouchableOpacity>
             </View>

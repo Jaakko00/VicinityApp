@@ -54,9 +54,9 @@ export default function UserAvatar(props) {
               userProfile: props.user,
             });
           }
-          if(props.callback) {
-            props.callback();
-          }
+          // if (props.function) {
+          //   props.function();
+          // }
         }}
       />
     </View>

@@ -11,8 +11,13 @@ import {
   onSnapshot,
   updateDoc,
   setDoc,
+  deleteDoc,
+  startAt,
+  endAt,
+  orderBy,
 } from "firebase/firestore";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
+import { geohashQueryBounds, distanceBetween } from "geofire-common";
 import * as React from "react";
 import { useEffect, useState, useContext } from "react";
 import {
@@ -26,16 +31,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-navigation";
 
+import { AuthenticatedUserContext, ThemeContext } from "../../App";
 import HomeHeader from "../../components/HomeHeader";
 import { auth, firestore } from "../../config/firebase";
-import getDistance from "../../utils/getDistance";
+import ChatView from "../chat/Chat";
 import UserView from "../user/User";
 import UserProfileView from "../user/UserProfile";
-import ChatView from "../chat/Chat";
 import HomeEmpty from "./components/HomeEmpty";
 import HomeFooter from "./components/HomeFooter";
 import PostCard from "./components/PostCard";
-import { AuthenticatedUserContext, ThemeContext } from "../../App";
 
 const Stack = createStackNavigator();
 
@@ -44,7 +48,6 @@ export function HomeView({ navigation, route }) {
   const storage = getStorage();
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useState([]);
-  const [nearbyPosts, setNearbyPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const { user, userInfo } = useContext(AuthenticatedUserContext);
   const { theme } = useContext(ThemeContext);
@@ -55,21 +58,67 @@ export function HomeView({ navigation, route }) {
   // Find all the prefixes and items.
 
   const getPosts = async () => {
-    setPosts([]);
-    setLoading(true);
-    const querySnapshot = await getDocs(collection(firestore, "post"));
-    querySnapshot.forEach(async (post) => {
-      const tempPost = post.data();
+    if (userInfo && userInfo.location) {
+      console.log("Getting posts");
+      const radiusInM = 3 * 1000;
 
-      tempPost.id = post.id;
-      if (tempPost.userRef) {
-        const userQuery = await getDoc(tempPost.userRef);
-        tempPost.userData = userQuery.data();
+      const center = [userInfo.location.latitude, userInfo.location.longitude];
+      console.log("center", center);
+
+      const bounds = geohashQueryBounds(center, radiusInM);
+
+      console.log("bounds", bounds);
+
+      const promises = [];
+      for (const b of bounds) {
+        const q = query(
+          collection(firestore, "post"),
+          orderBy("hash"),
+          startAt(b[0]),
+          endAt(b[1])
+        );
+        promises.push(getDocs(q));
       }
-      setPosts((oldPosts) => [...oldPosts, tempPost]);
-    });
 
-    setLoading(false);
+      Promise.all(promises)
+        .then((snapshots) => {
+          const matchingDocs = [];
+
+          for (const snap of snapshots) {
+            for (const doc of snap.docs) {
+              const lat = doc.get("location").latitude;
+              const lng = doc.get("location").longitude;
+
+              // We have to filter out a few false positives due to GeoHash
+              // accuracy, but most will match
+              const distanceInKm = distanceBetween([lat, lng], center);
+              const distanceInM = distanceInKm * 1000;
+              if (distanceInM <= radiusInM) {
+                matchingDocs.push(doc);
+              }
+            }
+          }
+
+          return matchingDocs;
+        })
+        .then((matchingDocs) => {
+          let tempPosts = [];
+          matchingDocs.forEach(async (post) => {
+            const tempPost = post.data();
+            tempPost.id = post.id;
+            if (tempPost.userRef) {
+              const userQuery = await getDoc(tempPost.userRef);
+              tempPost.userData = userQuery.data();
+              tempPost.distance = distanceBetween(
+                [tempPost.location.latitude, tempPost.location.longitude],
+                center
+              ).toPrecision(2);
+            }
+            tempPosts.push(tempPost);
+          });
+          setPosts(tempPosts);
+        });
+    }
   };
 
   const updatePost = async (post_id, params) => {
@@ -77,32 +126,19 @@ export function HomeView({ navigation, route }) {
     await updateDoc(postRef, params);
   };
 
+  const deletePost = async (post_id) => {
+    const postRef = doc(firestore, "post", post_id);
+    await deleteDoc(postRef);
+    // find the post in the posts array and remove it
+    const newPosts = posts.filter((post) => post.id !== post_id);
+    setPosts(newPosts);
+  };
+
   useEffect(() => {
     if (!posts.length) {
       getPosts();
     }
-  }, []);
-
-  useEffect(() => {
-    const tempNearbyPosts = [];
-    if (userInfo) {
-      posts.forEach((post, index) => {
-        if (post.location) {
-          const distance = getDistance(
-            userInfo.location.latitude,
-            userInfo.location.longitude,
-            post.location.latitude,
-            post.location.longitude
-          );
-          post = { ...post, distance };
-          if (distance <= 0.5) {
-            tempNearbyPosts.push(post);
-          }
-        }
-      });
-    }
-    setNearbyPosts(tempNearbyPosts);
-  }, [posts]);
+  }, [userInfo]);
 
   const styles = {
     homeBackgroundContainer: {
@@ -159,7 +195,7 @@ export function HomeView({ navigation, route }) {
         }}
         refreshing={refreshing}
         onRefresh={onRefresh}
-        data={nearbyPosts.sort(function (a, b) {
+        data={posts.sort(function (a, b) {
           const c = new Date(a.postedAt);
           const d = new Date(b.postedAt);
           return d - c;
@@ -171,11 +207,12 @@ export function HomeView({ navigation, route }) {
               post={item}
               navigation={navigation}
               updatePost={updatePost}
+              deletePost={deletePost}
             />
           </View>
         )}
         ListFooterComponent={
-          nearbyPosts.length ? (
+          posts.length ? (
             <View style={styles.view}>
               <HomeFooter />
             </View>

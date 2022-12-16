@@ -1,5 +1,10 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Camera, CameraType, FlashMode } from "expo-camera";
+import {
+  Camera,
+  CameraType,
+  FlashMode,
+  CameraPictureOptions,
+} from "expo-camera";
 import { manipulateAsync, FlipType, SaveFormat } from "expo-image-manipulator";
 import * as React from "react";
 import { useEffect, useState, useContext, useRef } from "react";
@@ -75,13 +80,19 @@ export default function CameraModal(props) {
   const handleTakePicture = async () => {
     if (ref.current && cameraReady) {
       let data = await ref.current.takePictureAsync();
+
       console.log(data);
       if (type === CameraType.front) {
         data = await manipulateAsync(
           data.localUri || data.uri,
           [{ rotate: 180 }, { flip: FlipType.Vertical }],
-          { compress: 1, format: SaveFormat.PNG }
+          { compress: 0, format: SaveFormat.JPEG }
         );
+      } else {
+        data = await manipulateAsync(data.localUri || data.uri, [], {
+          compress: 0,
+          format: SaveFormat.JPEG,
+        });
       }
       setImage(data);
       setCameraPreviewOpen(true);
@@ -168,8 +179,10 @@ export default function CameraModal(props) {
         <PreviewCameraImageModal
           image={image}
           setImage={setImage}
+          setPostImage={props.setPostImage}
           cameraPreviewOpen={cameraPreviewOpen}
           setCameraPreviewOpen={setCameraPreviewOpen}
+          setCameraOpen={props.setCameraOpen}
         />
       )}
     </Modal>

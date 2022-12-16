@@ -47,7 +47,7 @@ export default function GroupChatView(props, { route, navigation }) {
   const [stateFriend, setStateFriend] = useState("");
   const [approvedAt, setApprovedAt] = useState("");
   const { group } = props.route.params;
-  const { user, setUser } = useContext(AuthenticatedUserContext);
+  const { user, setUser, unSubscribes, setUnSubscribes } = useContext(AuthenticatedUserContext);
   const [showReactions, setShowReactions] = useState("");
   const [showDelete, setShowDelete] = useState("");
 
@@ -62,8 +62,10 @@ export default function GroupChatView(props, { route, navigation }) {
         })
       );
     });
+    if (!unSubscribes.includes(unSub)) {
+      setUnSubscribes((unSubscribes) => [...unSubscribes, unSub]);
+    }
 
-    return () => unSub();
   };
 
   const sendNewMessage = async (newMessage) => {

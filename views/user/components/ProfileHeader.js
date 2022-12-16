@@ -17,10 +17,12 @@ import {
 } from "react-native";
 import { SafeAreaView, ThemeColors } from "react-navigation";
 import { auth, firestore } from "../../../config/firebase";
-import { ThemeContext } from "../../../App";
+import {AuthenticatedUserContext, ThemeContext } from "../../../App";
 
 export default function ProfileHeader(props) {
   const { theme } = useContext(ThemeContext);
+  const {unSubscribes, user, userInfo} = useContext(AuthenticatedUserContext);
+
   const styles = {
     header: {
       zIndex: 999,
@@ -78,6 +80,7 @@ export default function ProfileHeader(props) {
     },
   };
   const onSignOut = () => {
+    unSubscribes.forEach((unSubscribe) => unSubscribe());
     signOut(auth).catch((error) => console.log("Error logging out: ", error));
   };
   return (

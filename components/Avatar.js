@@ -58,7 +58,7 @@ export default function Avatar(props) {
       activeOpacity={0.6}
       underlayColor="#DDDDDD"
       disabled={!props.onPress}
-      onPress={props.onPress}
+      onPress={() => props.onPress()}
     >
       {props.loading && (
         <ActivityIndicator style={styles.spinner} size="large" />
