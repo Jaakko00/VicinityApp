@@ -14,10 +14,9 @@ import {
   ScrollView,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Alert
+  Alert,
 } from "react-native";
 import uuid from "react-native-uuid";
-
 
 import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 import Avatar from "../../../components/Avatar";
@@ -27,9 +26,50 @@ import PreviewImage from "./PreviewImage";
 
 export default function PostCard(props) {
   const { theme } = useContext(ThemeContext);
+  const { user, setUser, approvedFriends } = useContext(
+    AuthenticatedUserContext
+  );
+  const { userInfo, setUserInfo } = useContext(AuthenticatedUserContext);
+  const [commentModalOpen, setCommentModalOpen] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [likedBy, setLikedBy] = useState([]);
+  const [dislikedBy, setDislikedBy] = useState([]);
+  const [friendCommented, setFriendCommented] = useState([]);
+  const [isLiked, setIsLiked] = useState(false);
+  const [isDisliked, setIsDisliked] = useState(false);
 
   const styles = {
     card: {
+      backgroundColor: "#fff",
+      padding: 10,
+
+      borderRadius: 10,
+      minWidth: "95%",
+      maxWidth: "95%",
+
+      shadowColor: "#171717",
+      shadowOffset: { width: -2, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+    },
+    backCard: {
+      position: "absolute",
+      bottom: 0,
+      zIndex: -1,
+      backgroundColor: theme.colors.primary,
+      height: friendCommented.length ? "94%" : "100%",
+      minWidth: "100%",
+      maxWidth: "95%",
+      padding: 10,
+      borderRadius: 10,
+
+      transform: [{ rotate: "-3deg" }],
+      shadowColor: "#171717",
+      shadowOffset: { width: -2, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 3,
+    },
+    cardPinned: {
       backgroundColor: "#fff",
       padding: 10,
 
@@ -120,17 +160,7 @@ export default function PostCard(props) {
     },
   };
 
-  const { user, setUser, approvedFriends } = useContext(
-    AuthenticatedUserContext
-  );
-  const { userInfo, setUserInfo } = useContext(AuthenticatedUserContext);
-  const [commentModalOpen, setCommentModalOpen] = useState(false);
-  const [comments, setComments] = useState([]);
-  const [likedBy, setLikedBy] = useState([]);
-  const [dislikedBy, setDislikedBy] = useState([]);
-  const [friendCommented, setFriendCommented] = useState([]);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isDisliked, setIsDisliked] = useState(false);
+  
 
   useEffect(() => {
     if (props.post.likedBy) {
@@ -239,8 +269,7 @@ export default function PostCard(props) {
         },
       ],
       { cancelable: true }
-    );  
-
+    );
   };
 
   return (
@@ -263,7 +292,9 @@ export default function PostCard(props) {
           />
         </View>
       ) : null}
-      <View style={styles.card}>
+
+      {props.post.pinned && <View style={styles.backCard} />}
+      <View style={props.post.pinned ? styles.cardPinned : styles.card}>
         <View style={styles.cardHeader}>
           <UserAvatar
             style={styles.shadowProp}

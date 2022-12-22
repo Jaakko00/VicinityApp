@@ -35,6 +35,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import uuid from "react-native-uuid";
 import { SafeAreaView } from "react-navigation";
@@ -50,6 +51,7 @@ import PreviewImage from "./PreviewImage";
 
 export default function AddPostModal(props) {
   const { theme } = useContext(ThemeContext);
+  const [pinned, setPinned] = useState(false);
   const [postText, setPostText] = useState("");
   const [postImage, setPostImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -87,16 +89,15 @@ export default function AddPostModal(props) {
       borderRadius: "50%",
       backgroundColor: theme.colors.secondary,
       margin: theme.size.margin,
-
       shadowColor: theme.colors.secondary,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 3,
     },
     buttonDisabled: {
+      opacity: 0.2,
       width: "40%",
       height: 60,
-      opacity: 0.2,
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
@@ -111,16 +112,64 @@ export default function AddPostModal(props) {
     extraButtonContainer: {
       flexDirection: "row",
     },
-    extraButton: {
+    cameraButton: {
       height: 60,
       aspectRatio: 1,
       flexDirection: "row",
       justifyContent: "center",
       alignItems: "center",
       borderRadius: "50%",
-      backgroundColor: theme.colors.secondary,
+      backgroundColor: postImage
+        ? theme.colors.primary
+        : theme.colors.secondary,
       margin: theme.size.margin,
-      shadowColor: theme.colors.secondary,
+      shadowColor: postImage ? theme.colors.primary : theme.colors.secondary,
+      shadowOffset: { width: -2, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 3,
+    },
+    cameraButtonDisabled: {
+      opacity: 0.2,
+      height: 60,
+      aspectRatio: 1,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: "50%",
+      backgroundColor: postImage
+        ? theme.colors.primary
+        : theme.colors.secondary,
+      margin: theme.size.margin,
+      shadowColor: postImage ? theme.colors.primary : theme.colors.secondary,
+      shadowOffset: { width: -2, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 3,
+    },
+    pinButton: {
+      height: 60,
+      aspectRatio: 1,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: "50%",
+      backgroundColor: pinned ? theme.colors.primary : theme.colors.secondary,
+      margin: theme.size.margin,
+      shadowColor: pinned ? theme.colors.primary : theme.colors.secondary,
+      shadowOffset: { width: -2, height: 4 },
+      shadowOpacity: 0.4,
+      shadowRadius: 3,
+    },
+    pinButtonDisabled: {
+      opacity: 0.2,
+      height: 60,
+      aspectRatio: 1,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      borderRadius: "50%",
+      backgroundColor: pinned ? theme.colors.primary : theme.colors.secondary,
+      margin: theme.size.margin,
+      shadowColor: pinned ? theme.colors.primary : theme.colors.secondary,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 3,
@@ -183,6 +232,7 @@ export default function AddPostModal(props) {
         uid: user.uid,
         location: userInfo.location,
         hash: hash,
+        pinned: pinned,
       });
       setLoading(false);
       onClose();
@@ -194,6 +244,7 @@ export default function AddPostModal(props) {
     props.setModalVisible(!props.modalVisible);
     setPostImage(null);
     setPostText("");
+    setPinned(false);
   };
 
   return (
@@ -220,6 +271,7 @@ export default function AddPostModal(props) {
               onChangeText={(text) => setPostText(text)}
               style={styles.textInput}
               autoFocus
+              editable={!loading}
             />
           </View>
           {postImage && (
@@ -230,22 +282,51 @@ export default function AddPostModal(props) {
           <View style={styles.buttonContainers}>
             <View style={styles.extraButtonContainer}>
               <TouchableOpacity
-                style={styles.extraButton}
-                onPress={() => setCameraOpen(true)}
+                style={
+                  loading ? styles.cameraButtonDisabled : styles.cameraButton
+                }
+                disabled={loading}
+                onPress={() => {
+                  if (!postImage) {
+                    setCameraOpen(true);
+                  } else {
+                    setPostImage(null);
+                  }
+                }}
               >
-                <MaterialCommunityIcons name="camera" size={24} color="white" />
+                <MaterialCommunityIcons
+                  name={postImage ? "image-remove" : "camera"}
+                  size={24}
+                  color="white"
+                />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.extraButton}>
-                <MaterialCommunityIcons name="at" size={24} color="white" />
+              <TouchableOpacity
+                style={loading ? styles.pinButtonDisabled : styles.pinButton}
+                disabled={loading}
+                onPress={() => setPinned(!pinned)}
+              >
+                <MaterialCommunityIcons
+                  name={pinned ? "pin-off" : "pin"}
+                  size={24}
+                  color="white"
+                />
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity
-              style={!postText.length ? styles.buttonDisabled : styles.button}
-              disabled={!postText.length}
+              style={
+                !postText.length || loading
+                  ? styles.buttonDisabled
+                  : styles.button
+              }
+              disabled={!postText.length || loading}
               onPress={() => handlePostSaved()}
             >
-              <Text style={styles.buttonText}>Post</Text>
+              {loading ? (
+                <ActivityIndicator />
+              ) : (
+                <Text style={styles.buttonText}>Post</Text>
+              )}
             </TouchableOpacity>
           </View>
         </SafeAreaView>

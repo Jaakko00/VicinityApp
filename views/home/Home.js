@@ -28,6 +28,7 @@ import {
   StyleSheet,
   RefreshControl,
   FlatList,
+  SectionList,
 } from "react-native";
 import { SafeAreaView } from "react-navigation";
 
@@ -40,28 +41,23 @@ import UserProfileView from "../user/UserProfile";
 import HomeEmpty from "./components/HomeEmpty";
 import HomeFooter from "./components/HomeFooter";
 import PostCard from "./components/PostCard";
+import PinnedHeader from "./components/HomeSectionTitle";
 
 const Stack = createStackNavigator();
 
 export function HomeView({ navigation, route }) {
-  const [files, setFiles] = useState([]);
-  const storage = getStorage();
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
+  const [postSections, setPostSections] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const { user, userInfo } = useContext(AuthenticatedUserContext);
   const { theme } = useContext(ThemeContext);
-
-  // Create a reference under which you want to list
-  const listRef = ref(storage, "images/");
-
-  // Find all the prefixes and items.
 
   const getPosts = async () => {
     if (userInfo && userInfo.location) {
       setLoading(true);
       console.log("Getting posts");
-      let tempPosts = [];
+      const tempPosts = [];
       const radiusInM = 3 * 1000;
 
       const center = [userInfo.location.latitude, userInfo.location.longitude];
@@ -104,6 +100,7 @@ export function HomeView({ navigation, route }) {
           return matchingDocs;
         })
         .then(async (matchingDocs) => {
+          // Get the user data and distance between your and post location for each post and add it to the post object
           for (const post of matchingDocs) {
             const tempPost = post.data();
             tempPost.id = post.id;
@@ -125,10 +122,6 @@ export function HomeView({ navigation, route }) {
     }
   };
 
-  useEffect(() => {
-    console.log("posts", posts);
-  }, [posts]);
-
   const updatePost = async (post_id, params) => {
     const postRef = doc(firestore, "post", post_id);
     await updateDoc(postRef, params);
@@ -147,6 +140,34 @@ export function HomeView({ navigation, route }) {
       getPosts();
     }
   }, [userInfo]);
+
+  useEffect(() => {
+    const now = Date.now();
+    const pinnedPosts = posts.filter(
+      (post) => post.pinned && now - post.postedAt < 86400000
+    );
+    const tempSections = [
+      {
+        data: pinnedPosts.sort(function (a, b) {
+          const c = new Date(a.postedAt);
+          const d = new Date(b.postedAt);
+          return d - c;
+        }),
+        title: "Pinned",
+      },
+      {
+        data: posts
+          .filter((post) => !post.pinned || now - post.postedAt > 86400000)
+          .sort(function (a, b) {
+            const c = new Date(a.postedAt);
+            const d = new Date(b.postedAt);
+            return d - c;
+          }),
+        title: "Posts",
+      },
+    ];
+    setPostSections(tempSections);
+  }, [posts]);
 
   const styles = {
     homeBackgroundContainer: {
@@ -197,17 +218,31 @@ export function HomeView({ navigation, route }) {
         <View style={styles.homeBackground} />
       </View>
       <HomeHeader navigation={navigation} getPosts={getPosts} />
-      <FlatList
+      <SectionList
         contentContainerStyle={{
           flexGrow: 1,
         }}
         refreshing={refreshing}
         onRefresh={onRefresh}
-        data={posts.sort(function (a, b) {
-          const c = new Date(a.postedAt);
-          const d = new Date(b.postedAt);
-          return d - c;
-        })}
+        sections={postSections}
+        stickySectionHeadersEnabled={false}
+        renderSectionHeader={({ section: { title, data } }) => {
+          if (data.length) {
+            if (title === "Pinned") {
+              return (
+                <View style={styles.view}>
+                  <PinnedHeader text="📌 Pinned for 24 hours" />
+                </View>
+              );
+            } else {
+              return (
+                <View style={styles.view}>
+                  <PinnedHeader text="Regular posts" />
+                </View>
+              );
+            }
+          }
+        }}
         removeClippedSubviews={false}
         renderItem={({ item }) => (
           <View style={styles.view}>
@@ -227,6 +262,7 @@ export function HomeView({ navigation, route }) {
             </View>
           ) : null
         }
+        
         ListEmptyComponent={
           <View style={styles.emptyView}>
             <HomeEmpty loading={loading} />

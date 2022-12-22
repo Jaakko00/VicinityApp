@@ -41,12 +41,18 @@ export default function PreviewCameraImageModal(props) {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
+      marginLeft: 30,
+      marginRight: 30,
     },
     closeButton: {
-      margin: 30,
+      backgroundColor: theme.colors.secondary,
+      borderRadius: "50%",
+      padding: theme.size.paddingBig,
     },
-    flipButton: {
-      margin: 30,
+    checkButton: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: "50%",
+      padding: theme.size.paddingBig,
     },
     pictureButton: {
       width: 100,
@@ -96,7 +102,7 @@ export default function PreviewCameraImageModal(props) {
               </TouchableOpacity>
               <TouchableOpacity style={styles.pictureButton} disabled />
               <TouchableOpacity
-                style={styles.flipButton}
+                style={styles.checkButton}
                 onPress={() => handleSelectImage()}
               >
                 <MaterialCommunityIcons name="check" size={40} color="white" />
