@@ -4,7 +4,7 @@ import { Text, View } from "react-native";
 
 import { ThemeContext } from "../../../App";
 
-export default function HomeEmpty(props) {
+export default function HomeEmpty({ loading }) {
   const { theme } = useContext(ThemeContext);
   const styles = {
     emptyContainer: {
@@ -21,7 +21,11 @@ export default function HomeEmpty(props) {
 
   return (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>No posts in your area 🙁</Text>
+      {loading ? (
+        <Text style={styles.emptyText}>Loading posts...</Text>
+      ) : (
+        <Text style={styles.emptyText}>No posts in your area 🙁</Text>
+      )}
     </View>
   );
 }

@@ -46,7 +46,7 @@ const Stack = createStackNavigator();
 export function HomeView({ navigation, route }) {
   const [files, setFiles] = useState([]);
   const storage = getStorage();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const { user, userInfo } = useContext(AuthenticatedUserContext);
@@ -59,7 +59,9 @@ export function HomeView({ navigation, route }) {
 
   const getPosts = async () => {
     if (userInfo && userInfo.location) {
+      setLoading(true);
       console.log("Getting posts");
+      let tempPosts = [];
       const radiusInM = 3 * 1000;
 
       const center = [userInfo.location.latitude, userInfo.location.longitude];
@@ -101,9 +103,8 @@ export function HomeView({ navigation, route }) {
 
           return matchingDocs;
         })
-        .then((matchingDocs) => {
-          let tempPosts = [];
-          matchingDocs.forEach(async (post) => {
+        .then(async (matchingDocs) => {
+          for (const post of matchingDocs) {
             const tempPost = post.data();
             tempPost.id = post.id;
             if (tempPost.userRef) {
@@ -115,11 +116,18 @@ export function HomeView({ navigation, route }) {
               ).toPrecision(2);
             }
             tempPosts.push(tempPost);
-          });
+          }
+        })
+        .then(() => {
           setPosts(tempPosts);
+          setLoading(false);
         });
     }
   };
+
+  useEffect(() => {
+    console.log("posts", posts);
+  }, [posts]);
 
   const updatePost = async (post_id, params) => {
     const postRef = doc(firestore, "post", post_id);
@@ -200,6 +208,7 @@ export function HomeView({ navigation, route }) {
           const d = new Date(b.postedAt);
           return d - c;
         })}
+        removeClippedSubviews={false}
         renderItem={({ item }) => (
           <View style={styles.view}>
             <PostCard
@@ -220,7 +229,7 @@ export function HomeView({ navigation, route }) {
         }
         ListEmptyComponent={
           <View style={styles.emptyView}>
-            <HomeEmpty />
+            <HomeEmpty loading={loading} />
           </View>
         }
         ListFooterComponentStyle={{ marginTop: 10 }}
