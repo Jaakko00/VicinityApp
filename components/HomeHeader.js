@@ -17,15 +17,17 @@ import { SafeAreaView } from "react-navigation";
 import Avatar from "./Avatar";
 import PreviewImage from "../views/home/components/PreviewImage";
 import { AuthenticatedUserContext } from "../App";
+import { ThemeContext } from "../App";
 
 import AddPostButton from "../views/home/components/AddPostButton";
 
 export default function HomeHeader(props) {
   const { user, userInfo } = useContext(AuthenticatedUserContext);
+  const { theme } = useContext(ThemeContext);
   const styles = {
     header: {
       zIndex: 999,
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       width: "100%",
       height: "15%",
       justifyContent: "flex-end",
@@ -47,6 +49,7 @@ export default function HomeHeader(props) {
       margin: 10,
       flexDirection: "row",
       justifyContent: "space-between",
+      
     },
   };
   return (
@@ -66,7 +69,7 @@ export default function HomeHeader(props) {
             }
           >
             <Text>
-              <MaterialCommunityIcons name="account" size={35} color="#000" />
+              <MaterialCommunityIcons name="account" size={35} color={theme.colors.text} />
             </Text>
           </TouchableOpacity>
         </View>

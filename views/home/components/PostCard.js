@@ -37,15 +37,21 @@ export default function PostCard(props) {
   const [friendCommented, setFriendCommented] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const [isDisliked, setIsDisliked] = useState(false);
+  const now = Date.now()
+  const isPinned = props.post.pinned && now - props.post.postedAt < 86400000;
 
   const styles = {
+    testContainer: {
+      minWidth: "95%",
+      maxWidth: "95%",
+    },
     card: {
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       padding: 10,
 
       borderRadius: 10,
-      minWidth: "95%",
-      maxWidth: "95%",
+      minWidth: "100%",
+      maxWidth: "100%",
 
       shadowColor: "#171717",
       shadowOffset: { width: -2, height: 2 },
@@ -54,13 +60,13 @@ export default function PostCard(props) {
     },
     backCard: {
       position: "absolute",
-      bottom: 0,
       zIndex: -1,
       backgroundColor: theme.colors.primary,
-      height: friendCommented.length ? "94%" : "100%",
+
+      height: "100%",
       minWidth: "100%",
-      maxWidth: "95%",
-      padding: 10,
+      width: "100%",
+
       borderRadius: 10,
 
       transform: [{ rotate: "-3deg" }],
@@ -70,12 +76,15 @@ export default function PostCard(props) {
       shadowRadius: 3,
     },
     cardPinned: {
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       padding: 10,
 
       borderRadius: 10,
-      minWidth: "95%",
-      maxWidth: "95%",
+      minWidth: "100%",
+      maxWidth: "100%",
+      // borderWidth: 2,
+      // borderColor: theme.colors.primary,
+      // borderStyle: "solid",
 
       shadowColor: "#171717",
       shadowOffset: { width: -2, height: 2 },
@@ -112,7 +121,7 @@ export default function PostCard(props) {
       borderRadius: 10,
       padding: 5,
       overflow: "hidden",
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
     },
     shadowProp: {
       padding: 7,
@@ -123,7 +132,7 @@ export default function PostCard(props) {
     },
     text: {
       fontFamily: "Futura",
-      color: "#7a7a7a",
+      color: theme.colors.textSecondary,
     },
     textDelete: {
       fontFamily: "Futura",
@@ -131,12 +140,14 @@ export default function PostCard(props) {
     },
     textPrimary: {
       fontFamily: "Futura",
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       fontSize: 16,
+      color: theme.colors.text,
     },
     textHeader: {
       fontFamily: "Futura",
       fontSize: 16,
+      color: theme.colors.text,
     },
     cardActionRow: {
       flexDirection: "row",
@@ -153,14 +164,13 @@ export default function PostCard(props) {
       fontFamily: "Futura",
       width: 30,
       textAlign: "center",
+      color: theme.colors.text,
     },
     commentInfoContainer: {
       flexDirection: "row",
       width: "90%",
     },
   };
-
-  
 
   useEffect(() => {
     if (props.post.likedBy) {
@@ -274,6 +284,11 @@ export default function PostCard(props) {
 
   return (
     <>
+      {isPinned ? (
+        <View style={styles.commentInfoContainer}>
+          <Text style={styles.text}>📌 Pinned for 24 hours</Text>
+        </View>
+      ) : null}
       {friendCommented.length ? (
         <View style={styles.commentInfoContainer}>
           <Text style={styles.text}>
@@ -293,110 +308,113 @@ export default function PostCard(props) {
         </View>
       ) : null}
 
-      {props.post.pinned && <View style={styles.backCard} />}
-      <View style={props.post.pinned ? styles.cardPinned : styles.card}>
-        <View style={styles.cardHeader}>
-          <UserAvatar
-            style={styles.shadowProp}
-            width={55}
-            image={props.post.userData.avatar}
-            user={props.post.userData}
-            navigation={props.navigation}
-            home
-          />
+      <View style={styles.testContainer}>
+          {isPinned && <View style={styles.backCard} />}
+        <View style={isPinned ? styles.cardPinned : styles.card}>
+          <View style={styles.cardHeader}>
+            <UserAvatar
+              style={styles.shadowProp}
+              width={55}
+              image={props.post.userData.avatar}
+              user={props.post.userData}
+              navigation={props.navigation}
+              home
+            />
 
-          <View
-            style={
-              props.post.userData.uid !== user.uid
-                ? styles.cardHeaderText
-                : styles.cardHeaderTextOwn
-            }
-          >
-            <View style={styles.cardFirstRow}>
-              <Text style={styles.textHeader}>
-                {props.post.userData.uid !== user.uid
-                  ? `${props.post.userData.firstName} ${props.post.userData.lastName}`
-                  : "You"}
-              </Text>
-              {props.post.userData.uid !== user.uid ? (
-                <Text style={styles.text}>
-                  {parseInt(props.post.distance * 1000, 10)}m
+            <View
+              style={
+                props.post.userData.uid !== user.uid
+                  ? styles.cardHeaderText
+                  : styles.cardHeaderTextOwn
+              }
+            >
+              <View style={styles.cardFirstRow}>
+                <Text style={styles.textHeader}>
+                  {props.post.userData.uid !== user.uid
+                    ? `${props.post.userData.firstName} ${props.post.userData.lastName}`
+                    : "You"}
                 </Text>
-              ) : (
-                <TouchableOpacity onPress={handleDelete}>
-                  <Text style={styles.textDelete}>Delete</Text>
-                </TouchableOpacity>
-              )}
+                {props.post.userData.uid !== user.uid ? (
+                  <Text style={styles.text}>
+                    {parseInt(props.post.distance * 1000, 10)}m
+                  </Text>
+                ) : (
+                  <TouchableOpacity onPress={handleDelete}>
+                    <Text style={styles.textDelete}>Delete</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+              <Text style={styles.text}>
+                {moment(props.post.postedAt).fromNow()}
+              </Text>
             </View>
-            <Text style={styles.text}>
-              {moment(props.post.postedAt).fromNow()}
-            </Text>
           </View>
-        </View>
-        <View style={styles.scrollView}>
-          <ScrollView>
-            <Text style={styles.textPrimary}>{props.post.text}</Text>
-          </ScrollView>
-        </View>
-        {props.post.image && (
-          <PreviewImage
-            width="100%"
-            height={80}
-            image={{ uri: props.post.image }}
-          />
-        )}
+          <View style={styles.scrollView}>
+            <ScrollView>
+              <Text style={styles.textPrimary}>{props.post.text}</Text>
+            </ScrollView>
+          </View>
+          {props.post.image && (
+            <PreviewImage
+              width="100%"
+              height={80}
+              image={{ uri: props.post.image }}
+            />
+          )}
 
-        <View style={styles.cardActionRow}>
-          <TouchableWithoutFeedback onPress={() => setCommentModalOpen(true)}>
-            <View style={styles.cardActionButton}>
-              <Text style={styles.cardActionNumber}>
-                {comments.length > 99 ? "99+" : comments.length}
-              </Text>
-              <MaterialCommunityIcons
-                name="comment"
-                size={24}
-                color={theme.colors.textSecondary}
-              />
-            </View>
-          </TouchableWithoutFeedback>
+          <View style={styles.cardActionRow}>
+            <TouchableWithoutFeedback onPress={() => setCommentModalOpen(true)}>
+              <View style={styles.cardActionButton}>
+                <Text style={styles.cardActionNumber}>
+                  {comments.length > 99 ? "99+" : comments.length}
+                </Text>
+                <MaterialCommunityIcons
+                  name="comment"
+                  size={24}
+                  color={theme.colors.textSecondary}
+                />
+              </View>
+            </TouchableWithoutFeedback>
 
-          <TouchableWithoutFeedback onPress={() => handleLike()}>
-            <View style={styles.cardActionButton}>
-              <Text style={styles.cardActionNumber}>
-                {likedBy.length > 99 ? "99+" : likedBy.length}
-              </Text>
-              <MaterialCommunityIcons
-                name="thumb-up"
-                size={24}
-                color={
-                  isLiked ? theme.colors.primary : theme.colors.textSecondary
-                }
-              />
-            </View>
-          </TouchableWithoutFeedback>
-          <TouchableWithoutFeedback onPress={() => handleDislike()}>
-            <View style={styles.cardActionButton}>
-              <Text style={styles.cardActionNumber}>
-                {dislikedBy.length > 99 ? "99+" : dislikedBy.length}
-              </Text>
-              <MaterialCommunityIcons
-                name="thumb-down"
-                size={24}
-                color={isDisliked ? "black" : theme.colors.textSecondary}
-              />
-            </View>
-          </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => handleLike()}>
+              <View style={styles.cardActionButton}>
+                <Text style={styles.cardActionNumber}>
+                  {likedBy.length > 99 ? "99+" : likedBy.length}
+                </Text>
+                <MaterialCommunityIcons
+                  name="thumb-up"
+                  size={24}
+                  color={
+                    isLiked ? theme.colors.primary : theme.colors.textSecondary
+                  }
+                />
+              </View>
+            </TouchableWithoutFeedback>
+            <TouchableWithoutFeedback onPress={() => handleDislike()}>
+              <View style={styles.cardActionButton}>
+                <Text style={styles.cardActionNumber}>
+                  {dislikedBy.length > 99 ? "99+" : dislikedBy.length}
+                </Text>
+                <MaterialCommunityIcons
+                  name="thumb-down"
+                  size={24}
+                  color={isDisliked ? "black" : theme.colors.textSecondary}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+
+          {commentModalOpen && (
+            <CommentModal
+              post={props.post}
+              comments={comments}
+              handleComment={handleComment}
+              commentModalOpen={commentModalOpen}
+              setCommentModalOpen={setCommentModalOpen}
+              navigation={props.navigation}
+            />
+          )}
         </View>
-        {commentModalOpen && (
-          <CommentModal
-            post={props.post}
-            comments={comments}
-            handleComment={handleComment}
-            commentModalOpen={commentModalOpen}
-            setCommentModalOpen={setCommentModalOpen}
-            navigation={props.navigation}
-          />
-        )}
       </View>
     </>
   );

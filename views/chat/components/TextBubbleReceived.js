@@ -32,8 +32,8 @@ export default function TextBubbleReceived(props) {
     },
     bubble: {
       position: "relative",
-      backgroundColor: "#fff",
-      borderColor: "#E40066",
+      backgroundColor: theme.colors.background,
+      borderColor: theme.colors.primary,
       borderWidth: 2,
       padding: 15,
 
@@ -42,19 +42,13 @@ export default function TextBubbleReceived(props) {
       minWidth: "40%",
       maxWidth: "70%",
 
-      shadowColor: "#E40066",
+      shadowColor: theme.colors.primary,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
     },
     cardHeader: {
       flexDirection: "row",
-    },
-    cardHeaderText: {
-      margin: 5,
-      padding: 5,
-      borderLeftWidth: 1,
-      borderColor: "#E40066",
     },
 
     scrollView: {
@@ -67,7 +61,7 @@ export default function TextBubbleReceived(props) {
     },
     shadowProp: {
       padding: 7,
-      shadowColor: "#171717",
+      shadowColor: theme.colors.shadow,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 3,
@@ -75,26 +69,27 @@ export default function TextBubbleReceived(props) {
     text: {
       fontFamily: "Futura",
       fontSize: 16,
+      color: theme.colors.text,
     },
     textDeleted: {
       fontFamily: "Futura",
       fontSize: 16,
-      color: "#7a7a7a",
+      color: theme.colors.textSecondary,
       fontStyle: "italic",
     },
     textSecondary: {
       fontFamily: "Futura",
-      color: "#7a7a7a",
+      color: theme.colors.textSecondary,
     },
     icon: {
       fontSize: 20,
       margin: 5,
     },
     iconSelected: {
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       borderRadius: "50%",
       borderWidth: 2,
-      borderColor: "#276fbf",
+      borderColor: theme.colors.secondary,
     },
     centeredView: {
       position: "absolute",
@@ -103,7 +98,7 @@ export default function TextBubbleReceived(props) {
     },
     modalView: {
       margin: 20,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
       borderRadius: 20,
       padding: 10,
       flexDirection: "row",
@@ -122,7 +117,7 @@ export default function TextBubbleReceived(props) {
       zIndex: 99,
       right: -15,
       bottom: -15,
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       borderRadius: "50%",
       borderWidth: 2,
       borderColor: "#276fbf",

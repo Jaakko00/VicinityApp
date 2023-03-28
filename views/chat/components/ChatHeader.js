@@ -3,7 +3,7 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { getStorage, ref, listAll, getDownloadURL } from "firebase/storage";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   Text,
   View,
@@ -19,15 +19,17 @@ import { SafeAreaView } from "react-navigation";
 import Avatar from "../../../components/Avatar";
 import UserAvatar from "../../../components/UserAvatar";
 import PreviewImage from "../../home/components/PreviewImage";
+import { ThemeContext } from "../../../App";
 
 export default function ChatHeader(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     header: {
       zIndex: 999,
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       width: "100%",
       height: "15%",
-      shadowColor: "#171717",
+      shadowColor: theme.colors.shadow,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 5,
@@ -36,7 +38,7 @@ export default function ChatHeader(props) {
 
     avatar: {
       padding: 7,
-      shadowColor: "#171717",
+      shadowColor: theme.colors.shadow,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 3,
@@ -57,22 +59,10 @@ export default function ChatHeader(props) {
       padding: 5,
       borderColor: "#E40066",
     },
-    text: {
-      fontFamily: "Futura",
-      color: "#7a7a7a",
-    },
     textHeader: {
       fontFamily: "Futura",
       fontSize: 20,
-    },
-    textMessage: {
-      fontFamily: "Futura",
-      color: "#7a7a7a",
-    },
-    textMessageNew: {
-      fontFamily: "Futura",
-      color: "#000",
-      fontWeight: "bold",
+      color: theme.colors.text,
     },
   };
   return (
@@ -84,7 +74,7 @@ export default function ChatHeader(props) {
               <MaterialCommunityIcons
                 name="chevron-left"
                 size={40}
-                color="#276fbf"
+                color={theme.colors.secondary}
                 style={styles.sendIcon}
               />
             </Text>

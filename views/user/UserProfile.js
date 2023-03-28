@@ -181,7 +181,7 @@ export default function UserProfileView({ navigation, route }) {
   };
 
   const styles = {
-    container: { height: "100%", backgroundColor: "white" },
+    container: { height: "100%", backgroundColor: theme.colors.background },
     topViewContainer: {
       height: "50%",
       width: "100%",
@@ -216,7 +216,7 @@ export default function UserProfileView({ navigation, route }) {
     },
     infoText: {
       fontSize: 14,
-      color: "white",
+      color: theme.colors.text,
       fontFamily: "Futura",
     },
     friendButtonsContainer: {
@@ -270,7 +270,7 @@ export default function UserProfileView({ navigation, route }) {
     },
     bottomView: {
       flex: 1,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
     },
     bottomScroll: {
       marginTop: 10,
@@ -281,7 +281,7 @@ export default function UserProfileView({ navigation, route }) {
       alignItems: "center",
       height: "50%",
       aspectRatio: 1,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
       borderRadius: 10,
       margin: 10,
       padding: 10,

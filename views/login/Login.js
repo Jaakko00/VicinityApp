@@ -58,7 +58,7 @@ export default function Login({ navigation }) {
     formContainer: {
       flex: 1,
       padding: 20,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
       zIndex: 10,
       minHeight: "50%",
       maxHeight: "60%",
@@ -76,7 +76,7 @@ export default function Login({ navigation }) {
       justifyContent: "space-between",
       alignItems: "center",
       borderRadius: "50%",
-      backgroundColor: "white",
+      backgroundColor: theme.colors.textBackground,
       shadowColor: "#171717",
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.4,
@@ -86,7 +86,7 @@ export default function Login({ navigation }) {
     },
     textInput: {
       flex: 1,
-      color: "#000",
+      color: theme.colors.text,
       fontFamily: "Futura",
       fontSize: 18,
     },
@@ -134,7 +134,7 @@ export default function Login({ navigation }) {
     },
     bottomContainer: {
       flex: 1,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
     },
     registerContainer: {
       flex: 1,
@@ -152,18 +152,18 @@ export default function Login({ navigation }) {
       width: 40,
       height: 40,
       borderRadius: "50%",
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
       margin: 10,
     },
     smallBubble: {
       width: 20,
       height: 20,
       borderRadius: "50%",
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
     },
     registerTextContainer: {
       flexDirection: "row",
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
       padding: 20,
       borderRadius: "50%",
       width: "80%",
@@ -207,7 +207,9 @@ export default function Login({ navigation }) {
 
   return (
     <>
-      <SafeAreaView style={{ flexGrow: 0, backgroundColor: "white" }} />
+      <SafeAreaView
+        style={{ flexGrow: 0, backgroundColor: theme.colors.background }}
+      />
       <SafeAreaView
         style={{ flexGrow: 1, backgroundColor: theme.colors.primary }}
       >

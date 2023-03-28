@@ -24,16 +24,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { AuthenticatedUserContext } from "../../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 import { auth, firestore } from "../../../config/firebase";
 import Avatar from "../../../components/Avatar";
 import GroupAvatar from "../../../components/GroupAvatar";
 import PreviewImage from "../../home/components/PreviewImage";
 
 export default function GroupCard(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     card: {
-      
       padding: 10,
 
       minWidth: "100%",
@@ -74,6 +74,7 @@ export default function GroupCard(props) {
     textHeader: {
       fontFamily: "Futura",
       fontSize: 16,
+      color: theme.colors.text,
     },
     textMessage: {
       fontFamily: "Futura",
@@ -81,7 +82,7 @@ export default function GroupCard(props) {
     },
     textMessageNew: {
       fontFamily: "Futura",
-      color: "#000",
+      color: theme.colors.text,
       fontWeight: "bold",
     },
   };
@@ -112,7 +113,7 @@ export default function GroupCard(props) {
     <View style={styles.card}>
       <TouchableOpacity
         onPress={() => {
-          setShowLeaveGroupButton(false)
+          setShowLeaveGroupButton(false);
           props.navigation.navigate("GroupChat", { group: props.group });
         }}
         onLongPress={() => setShowLeaveGroupButton(true)}
@@ -142,7 +143,7 @@ export default function GroupCard(props) {
                       setShowLeaveGroupButton(false);
                     }}
                   >
-                    <Text style={styles.leaveText} >Leave group</Text>
+                    <Text style={styles.leaveText}>Leave group</Text>
                   </TouchableOpacity>
                 ) : (
                   ""

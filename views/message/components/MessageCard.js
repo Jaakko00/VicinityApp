@@ -24,16 +24,16 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { AuthenticatedUserContext } from "../../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 import { auth, firestore } from "../../../config/firebase";
 import Avatar from "../../../components/Avatar";
 import UserAvatar from "../../../components/UserAvatar";
 import PreviewImage from "../../home/components/PreviewImage";
 
 export default function FriendCard(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     card: {
-      
       padding: 10,
 
       minWidth: "100%",
@@ -75,19 +75,21 @@ export default function FriendCard(props) {
     textHeader: {
       fontFamily: "Futura",
       fontSize: 16,
+      color: theme.colors.text,
     },
     textHeaderNew: {
       fontFamily: "Futura",
       fontSize: 16,
       fontWeight: "bold",
+      color: theme.colors.text,
     },
     textMessage: {
       fontFamily: "Futura",
-      color: "#7a7a7a",
+      color: theme.colors.textSecondary,
     },
     textMessageNew: {
       fontFamily: "Futura",
-      color: "#000",
+      color: theme.colors.text,
       fontWeight: "bold",
     },
   };

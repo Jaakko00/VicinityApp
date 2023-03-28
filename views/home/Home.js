@@ -213,7 +213,7 @@ export function HomeView({ navigation, route }) {
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.lightBackground }}>
       <View style={styles.homeBackgroundContainer}>
         <View style={styles.homeBackground} />
       </View>
@@ -225,24 +225,6 @@ export function HomeView({ navigation, route }) {
         refreshing={refreshing}
         onRefresh={onRefresh}
         sections={postSections}
-        stickySectionHeadersEnabled={false}
-        renderSectionHeader={({ section: { title, data } }) => {
-          if (data.length) {
-            if (title === "Pinned") {
-              return (
-                <View style={styles.view}>
-                  <PinnedHeader text="📌 Pinned for 24 hours" />
-                </View>
-              );
-            } else {
-              return (
-                <View style={styles.view}>
-                  <PinnedHeader text="Regular posts" />
-                </View>
-              );
-            }
-          }
-        }}
         removeClippedSubviews={false}
         renderItem={({ item }) => (
           <View style={styles.view}>

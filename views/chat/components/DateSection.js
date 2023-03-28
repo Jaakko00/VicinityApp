@@ -1,25 +1,27 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import moment from "moment";
-import * as React from "react";
+import React, {useContext} from "react";
 
 import { Text, View } from "react-native";
 import getTime from "../../../utils/getTime";
+import { ThemeContext } from "../../../App";
 
 export default function DateSection(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     footer: {
       margin: 10,
       alignItems: "center",
     },
     container: {
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       padding: 10,
       borderRadius: "50%",
     },
     text: {
       fontFamily: "Futura",
-      color: "#7a7a7a",
+      color: theme.colors.textSecondary,
     },
   };
   return (

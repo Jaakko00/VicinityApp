@@ -26,10 +26,10 @@ export default function ProfileHeader(props) {
   const styles = {
     header: {
       zIndex: 999,
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       width: "100%",
       height: "15%",
-      shadowColor: "#171717",
+      shadowColor: theme.colors.shadow,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 5,
@@ -38,7 +38,7 @@ export default function ProfileHeader(props) {
 
     avatar: {
       padding: 7,
-      shadowColor: "#171717",
+      shadowColor: theme.colors.shadow,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 3,

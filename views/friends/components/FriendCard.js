@@ -34,7 +34,7 @@ export default function FriendCard(props) {
   const { theme } = useContext(ThemeContext);
   const styles = {
     card: {
-      backgroundColor: theme.colors.background,
+      backgroundColor: theme.colors.lightBackground,
       padding: 10,
 
       minWidth: "100%",
@@ -71,6 +71,7 @@ export default function FriendCard(props) {
     textHeader: {
       fontFamily: "Futura",
       fontSize: 16,
+      color: theme.colors.text,
     },
     textMessage: {
       fontFamily: "Futura",
@@ -78,7 +79,7 @@ export default function FriendCard(props) {
     },
     textMessageNew: {
       fontFamily: "Futura",
-      color: "#000",
+      color: theme.colors.text,
       fontWeight: "bold",
     },
   };

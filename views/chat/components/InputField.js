@@ -9,19 +9,20 @@ import {
   Keyboard,
 } from "react-native";
 import { Audio } from "expo-av";
-import { AuthenticatedUserContext } from "../../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 
 export default function InputField(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     inputContainer: {
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
     },
     flexContainer: {
       flexDirection: "row",
       borderWidth: 2,
       borderRadius: 40,
       margin: 5,
-      borderColor: "#276fbf",
+      borderColor: theme.colors.secondary,
       alignItems: "flex-end",
     },
     flexContainerFocus: {
@@ -29,7 +30,7 @@ export default function InputField(props) {
       borderWidth: 2,
       borderRadius: 40,
       margin: 5,
-      borderColor: "#276fbf",
+      borderColor: theme.colors.secondary,
       alignItems: "flex-end",
     },
     textInput: {
@@ -38,6 +39,10 @@ export default function InputField(props) {
       paddingTop: 10,
       fontFamily: "Futura",
       width: "80%",
+      color: theme.colors.text,
+      borderTopLeftRadius: 40,
+      borderBottomLeftRadius: 40,
+      backgroundColor: theme.colors.textBackground,
     },
 
     sendButton: {
@@ -49,7 +54,10 @@ export default function InputField(props) {
 
       marginLeft: 0,
       height: 38,
-      borderColor: "#276fbf",
+      borderTopRightRadius: 40,
+      borderBottomRightRadius: 40,
+      borderColor: theme.colors.secondary,
+      backgroundColor: theme.colors.textBackground,
     },
     sendIcon: {
       textAlign: "center",
@@ -87,6 +95,7 @@ export default function InputField(props) {
         <TextInput
           style={styles.textInput}
           placeholder="New message"
+          placeholderTextColor={theme.colors.textSecondary}
           value={newMessage}
           onChangeText={(text) => setNewMessage(text)}
           multiline
@@ -101,7 +110,7 @@ export default function InputField(props) {
             <MaterialCommunityIcons
               name="send"
               size={19}
-              color="#276fbf"
+              color={theme.colors.secondary}
               style={styles.sendIcon}
             />
           </Text>

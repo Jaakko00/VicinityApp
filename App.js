@@ -19,7 +19,14 @@ import {
 } from "firebase/firestore";
 import * as React from "react";
 import { useEffect, useState, createContext, useContext } from "react";
-import { Text, View, ActivityIndicator, LogBox } from "react-native";
+import {
+  Text,
+  View,
+  ActivityIndicator,
+  LogBox,
+  Appearance,
+  useColorScheme,
+} from "react-native";
 import { TailwindProvider } from "tailwindcss-react-native";
 
 import { auth, firestore } from "./config/firebase";
@@ -42,6 +49,7 @@ export const RegisterContext = createContext({});
 LogBox.ignoreLogs([
   "AsyncStorage has been extracted from react-native core",
   "Require cycle: App.js",
+  "->",
   "EventEmitter.removeListener",
 ]);
 
@@ -50,8 +58,8 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{
-        tabBarActiveTintColor: "#E40066",
-        tabBarInactiveTintColor: "#000",
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.text,
         tabBarActiveBackgroundColor: "transparent",
         tabBarInactiveBackgroundColor: "transparent",
         headerShown: false,
@@ -60,13 +68,14 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
           labelStyle: {
             fontFamily: "Futura",
           },
+          backgroundColor: theme.colors.background,
         },
         tabBarLabelStyle: {
           fontFamily: "Futura",
         },
 
         contentStyle: {
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#000",
         },
       }}
     >
@@ -134,7 +143,7 @@ function NavigationTabs({ inpendingFriends, newMessages, theme }) {
                   >
                     <MaterialCommunityIcons
                       name="exclamation-thick"
-                      color={theme.colors.background}
+                      color="white"
                       size={12}
                     />
                   </View>
@@ -389,11 +398,15 @@ const AuthenticatedUserProvider = ({ children }) => {
 };
 
 const ThemeProvider = ({ children }) => {
-  const theme = {
+  const [colorScheme, setScheme] = useState(Appearance.getColorScheme());
+  const lightTheme = {
     colors: {
       primary: "#E40066",
       secondary: "#276fbf",
       background: "#fff",
+      lightBackground: "#f2f2f2",
+      textBackground: "#fff",
+      shadow: "#171717",
       text: "#000",
       textSecondary: "#7a7a7a",
     },
@@ -408,6 +421,47 @@ const ThemeProvider = ({ children }) => {
       paddingBig: 10,
     },
   };
+  const darkTheme = {
+    colors: {
+      primary: "#E40066",
+      secondary: "#276fbf",
+      background: "#121212",
+      lightBackground: "#262626",
+      textBackground: "#202020",
+      shadow: "#171717",
+      text: "#fff",
+      textSecondary: "#7a7a7a",
+    },
+    text: {
+      headerText: 18,
+      bodyText: 14,
+    },
+    size: {
+      margin: 10,
+      borderRadius: 10,
+      paddingSmall: 5,
+      paddingBig: 10,
+    },
+  };
+  const [theme, setTheme] = useState(darkTheme);
+
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener((preferences) => {
+      const { colorScheme: scheme } = preferences;
+      setScheme(scheme);
+    });
+
+    return () => subscription?.remove();
+  }, [setScheme]);
+
+  useEffect(() => {
+    console.log("colorScheme", colorScheme);
+    if (colorScheme === "light") {
+      setTheme(lightTheme);
+    } else {
+      setTheme(darkTheme);
+    }
+  }, [colorScheme]);
 
   return (
     <ThemeContext.Provider value={{ theme }}>{children}</ThemeContext.Provider>

@@ -28,7 +28,7 @@ import {
   SectionList,
 } from "react-native";
 
-import { AuthenticatedUserContext } from "../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../App";
 import { auth, firestore } from "../../config/firebase";
 import ChatHeader from "./components/ChatHeader";
 import DateSection from "./components/DateSection";
@@ -40,6 +40,7 @@ import TextBubbleSent from "./components/TextBubbleSent";
 const Stack = createStackNavigator();
 
 export default function ChatView(props, { route, navigation }) {
+  const { theme } = useContext(ThemeContext);
   const storage = getStorage();
   const [messages, setMessages] = useState([]);
   const [sortedMessages, setSortedMessages] = useState([]);
@@ -252,6 +253,7 @@ export default function ChatView(props, { route, navigation }) {
           style={{ flex: 1 }}
         >
           <SectionList
+            style={{ backgroundColor: theme.colors.lightBackground }}
             sections={sortedMessages}
             keyExtractor={(item, index) => item + index}
             renderItem={(msg) => {

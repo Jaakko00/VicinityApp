@@ -68,7 +68,7 @@ export default function RegisterPassword({ navigation, route }) {
     formContainer: {
       flex: 1,
       padding: 20,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
       zIndex: 10,
       minHeight: "70%",
       maxHeight: "70%",
@@ -86,7 +86,7 @@ export default function RegisterPassword({ navigation, route }) {
       justifyContent: "space-between",
       alignItems: "center",
       borderRadius: "50%",
-      backgroundColor: "white",
+      backgroundColor: theme.colors.textBackground,
       shadowColor: "#171717",
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.4,
@@ -96,7 +96,7 @@ export default function RegisterPassword({ navigation, route }) {
     },
     textInput: {
       flex: 1,
-      color: "#000",
+      color: theme.colors.text,
       fontFamily: "Futura",
       fontSize: 18,
     },
@@ -142,7 +142,7 @@ export default function RegisterPassword({ navigation, route }) {
     },
     bottomContainer: {
       flex: 1,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
     },
     registerContainer: {
       flex: 1,
@@ -156,27 +156,7 @@ export default function RegisterPassword({ navigation, route }) {
       flexDirection: "row",
       justifyContent: "flex-start",
     },
-    bigBubble: {
-      width: 40,
-      height: 40,
-      borderRadius: "50%",
-      backgroundColor: "white",
-      margin: 10,
-    },
-    smallBubble: {
-      width: 20,
-      height: 20,
-      borderRadius: "50%",
-      backgroundColor: "white",
-    },
-    registerTextContainer: {
-      flexDirection: "row",
-      backgroundColor: "white",
-      padding: 20,
-      borderRadius: "50%",
-      width: "80%",
-      justifyContent: "center",
-    },
+    
     registerText: {
       color: theme.colors.text,
       fontFamily: "Futura",
@@ -191,7 +171,9 @@ export default function RegisterPassword({ navigation, route }) {
 
   return (
     <>
-      <SafeAreaView style={{ flexGrow: 0, backgroundColor: "white" }} />
+      <SafeAreaView
+        style={{ flexGrow: 0, backgroundColor: theme.colors.background }}
+      />
       <SafeAreaView
         style={{ flexGrow: 1, backgroundColor: theme.colors.secondary }}
       >

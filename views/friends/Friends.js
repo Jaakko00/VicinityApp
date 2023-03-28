@@ -28,7 +28,7 @@ import {
   SectionList,
 } from "react-native";
 
-import { AuthenticatedUserContext } from "../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../App";
 import { auth, firestore } from "../../config/firebase";
 import FriendsHeader from "./components/FriendsHeader";
 import FriendCard from "./components/FriendCard";
@@ -38,6 +38,7 @@ import PendingFriendCard from "./components/PendingFriendCard";
 const Stack = createStackNavigator();
 
 export default function FriendsView({ route, navigation }) {
+  const { theme } = useContext(ThemeContext);
   const storage = getStorage();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -89,13 +90,13 @@ export default function FriendsView({ route, navigation }) {
 
   const styles = {
     view: {
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.lightBackground,
       flex: 1,
       alignItems: "center",
       justifyContent: "flex-center",
     },
     horizontalView: {
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.lightBackground,
       flex: 1,
       flexDirection: "row",
       alignItems: "flex-start",
@@ -110,7 +111,8 @@ export default function FriendsView({ route, navigation }) {
       paddingLeft: 10,
       fontFamily: "Futura",
       fontSize: 18,
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.lightBackground,
+      color: theme.colors.text,
     },
     messagesView: { flexGrow: 1, flex: 1 },
     scrollViewHorizontal: { height: 150 },
@@ -126,7 +128,7 @@ export default function FriendsView({ route, navigation }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.lightBackground }}>
       <FriendsHeader navigation={navigation} />
 
       {approvedFriends.length > 0 ||

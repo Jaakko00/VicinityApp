@@ -1,12 +1,14 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import moment from "moment";
-import * as React from "react";
+import React, {useContext} from "react";
 
 import { Text, View } from "react-native";
 import getTime from "../../../utils/getTime";
+import { ThemeContext } from "../../../App";
 
 export default function InfoMessage(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     footer: {
       margin: 10,
@@ -15,20 +17,7 @@ export default function InfoMessage(props) {
 
     text: {
       fontFamily: "Futura",
-      color: "#7a7a7a",
-    },
-    textHeader: {
-      fontFamily: "Futura",
-      fontSize: 20,
-    },
-    textMessage: {
-      fontFamily: "Futura",
-      color: "#7a7a7a",
-    },
-    textMessageNew: {
-      fontFamily: "Futura",
-      color: "#000",
-      fontWeight: "bold",
+      color: theme.colors.textSecondary,
     },
   };
   return (

@@ -130,11 +130,13 @@ export function MessageView({ navigation, route }) {
       paddingLeft: 10,
       fontFamily: "Futura",
       fontSize: 18,
+      color: theme.colors.text,
     },
     headerIcon: {
       padding: 5,
       paddingRight: 10,
       fontFamily: "Futura",
+      color: theme.colors.text,
     },
     headerContainer: {
       flexGrow: 1,
@@ -146,7 +148,7 @@ export function MessageView({ navigation, route }) {
       padding: 5,
       fontFamily: "Futura",
 
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.lightBackground,
       color: theme.colors.textSecondary,
     },
     messagesView: { flexGrow: 1, flex: 1 },
@@ -233,7 +235,7 @@ export function MessageView({ navigation, route }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.lightBackground }}>
       <View style={styles.homeBackgroundContainer}>
         <View style={styles.homeBackground} />
       </View>
@@ -267,7 +269,7 @@ export function MessageView({ navigation, route }) {
                 style={styles.headerIcon}
                 name="plus"
                 size={35}
-                color="#000"
+                color={theme.colors.text}
               />
             </TouchableOpacity>
           </View>

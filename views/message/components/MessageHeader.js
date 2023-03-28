@@ -23,7 +23,7 @@ export default function HomeHeader(props) {
   const styles = {
     header: {
       zIndex: 999,
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       width: "100%",
       height: "15%",
       justifyContent: "flex-end",
@@ -67,7 +67,7 @@ export default function HomeHeader(props) {
               <MaterialCommunityIcons
                 name="account-group"
                 size={35}
-                color="#000"
+                color={theme.colors.text}
               />
               {inpendingFriends.length > 0 && (
                 <View

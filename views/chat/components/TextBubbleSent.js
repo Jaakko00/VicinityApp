@@ -15,12 +15,14 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import { AuthenticatedUserContext } from "../../../App";
+import { AuthenticatedUserContext, ThemeContext } from "../../../App";
 import Avatar from "../../../components/Avatar";
 import UserAvatar from "../../../components/UserAvatar";
 import PreviewImage from "../../home/components/PreviewImage";
 
+
 export default function TextBubbleSent(props) {
+  const { theme } = useContext(ThemeContext);
   const styles = {
     bubbleContainer: {
       flex: 1,
@@ -31,8 +33,8 @@ export default function TextBubbleSent(props) {
       marginTop: 8,
     },
     bubble: {
-      backgroundColor: "#fff",
-      borderColor: "#276fbf",
+      backgroundColor: theme.colors.background,
+      borderColor: theme.colors.secondary,
       borderWidth: 2,
       padding: 15,
 
@@ -41,20 +43,16 @@ export default function TextBubbleSent(props) {
       minWidth: "40%",
       maxWidth: "70%",
 
-      shadowColor: "#276fbf",
+      shadowColor: theme.colors.secondary,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 3,
     },
+    
     cardHeader: {
       flexDirection: "row",
     },
-    cardHeaderText: {
-      margin: 5,
-      padding: 5,
-      borderLeftWidth: 1,
-      borderColor: "#E40066",
-    },
+    
 
     scrollView: {
       maxHeight: 200,
@@ -66,7 +64,7 @@ export default function TextBubbleSent(props) {
     },
     shadowProp: {
       padding: 7,
-      shadowColor: "#171717",
+      shadowColor: theme.colors.shadow,
       shadowOffset: { width: -2, height: 4 },
       shadowOpacity: 0.4,
       shadowRadius: 3,
@@ -74,16 +72,17 @@ export default function TextBubbleSent(props) {
     text: {
       fontFamily: "Futura",
       fontSize: 16,
+      color: theme.colors.text,
     },
     textDeleted: {
       fontFamily: "Futura",
       fontSize: 16,
-      color: "#7a7a7a",
+      color: theme.colors.textSecondary,
       fontStyle: "italic",
     },
     textSecondary: {
       fontFamily: "Futura",
-      color: "#7a7a7a",
+      color: theme.colors.textSecondary,
     },
     icon: {
       fontSize: 20,
@@ -96,7 +95,7 @@ export default function TextBubbleSent(props) {
     },
     modalView: {
       margin: 20,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
       borderRadius: 20,
       padding: 10,
       flexDirection: "row",
@@ -115,7 +114,7 @@ export default function TextBubbleSent(props) {
       zIndex: 2,
       left: -15,
       bottom: -15,
-      backgroundColor: "#fff",
+      backgroundColor: theme.colors.background,
       borderRadius: "50%",
       borderWidth: 2,
       borderColor: "#E40066",

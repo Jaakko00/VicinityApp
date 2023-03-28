@@ -68,7 +68,8 @@ export default function AddPostModal(props) {
       shadowRadius: 3,
     },
     textInput: {
-      backgroundColor: "white",
+      backgroundColor: theme.colors.textBackground,
+      color: theme.colors.text,
       height: "100%",
       padding: 10,
       borderRadius: 10,
@@ -262,10 +263,13 @@ export default function AddPostModal(props) {
         style={{ flexGrow: 1 }}
         disabled
       >
-        <SafeAreaView style={{ flex: 1 }}>
+        <SafeAreaView
+          style={{ flex: 1, backgroundColor: theme.colors.background }}
+        >
           <View style={styles.textInputContainer}>
             <TextInput
               placeholder="What's on your mind?"
+              placeholderTextColor={theme.colors.textSecondary}
               multiline
               value={postText}
               onChangeText={(text) => setPostText(text)}

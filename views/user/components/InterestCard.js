@@ -29,13 +29,13 @@ export default function InterestCard(props) {
   const { theme } = useContext(ThemeContext);
 
   const styles = {
-    container: { height: "100%", backgroundColor: "white" },
+    container: { height: "100%", backgroundColor: theme.colors.textBackground },
     milestoneCard: {
       justifyContent: "flex-start",
       alignItems: "center",
       height: "50%",
       aspectRatio: 1,
-      backgroundColor: "white",
+      backgroundColor: theme.colors.textBackground,
       borderRadius: 10,
       margin: 10,
       padding: 10,
@@ -100,7 +100,7 @@ export default function InterestCard(props) {
             <MaterialCommunityIcons
               name={props.iconName}
               size={50}
-              color="black"
+              color={theme.colors.text}
             />
           </View>
           <View style={styles.milestoneTextContainer}>

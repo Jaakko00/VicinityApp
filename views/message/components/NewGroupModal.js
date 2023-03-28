@@ -59,7 +59,7 @@ export default function NewGroupModal(props) {
   const styles = {
     modalView: {
       height: "100%",
-      backgroundColor: "#E40066",
+      backgroundColor: theme.colors.lightBackground,
       padding: theme.size.paddingBig,
       alignItems: "center",
       shadowColor: "#000",
@@ -79,13 +79,14 @@ export default function NewGroupModal(props) {
       marginBottom: 10,
     },
     modalItem: {
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
       margin: 10,
       padding: theme.size.paddingSmall,
       width: "90%",
       borderRadius: theme.size.borderRadius,
     },
     modalText: {
+      color: theme.colors.text,
       padding: theme.size.paddingSmall,
       paddingLeft: theme.size.paddingBig,
       fontFamily: "Futura",
@@ -119,7 +120,7 @@ export default function NewGroupModal(props) {
       opacity: 0.2,
     },
     modalButtonText: {
-      color: "white",
+      color: theme.colors.text,
       fontFamily: "Futura",
       fontSize: 18,
     },
@@ -129,7 +130,8 @@ export default function NewGroupModal(props) {
       alignItems: "flex-start",
     },
     newGroupTextInput: {
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
+      color: theme.colors.text,
       flex: 1,
       borderRadius: theme.size.borderRadius,
       padding: theme.size.paddingBig,
@@ -137,7 +139,8 @@ export default function NewGroupModal(props) {
       fontFamily: "Futura",
     },
     textInput: {
-      backgroundColor: "white",
+      backgroundColor: theme.colors.background,
+      color: theme.colors.text,
       borderRadius: theme.size.borderRadius,
       padding: theme.size.paddingBig,
       fontSize: 18,
@@ -298,6 +301,7 @@ export default function NewGroupModal(props) {
                     ? "Enter 8-digit group code"
                     : "You are already in a group"
                 }
+                placeholderTextColor={theme.colors.textSecondary}
                 keyboardType="number-pad"
                 maxLength={8}
                 value={groupCode}
@@ -329,6 +333,7 @@ export default function NewGroupModal(props) {
                       ? "Enter group name"
                       : "You are already in a group"
                   }
+                  placeholderTextColor={theme.colors.textSecondary}
                   maxLength={20}
                   value={groupName}
                   onChangeText={(text) => setGroupName(text)}
